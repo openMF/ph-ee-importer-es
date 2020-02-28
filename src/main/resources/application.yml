@@ -1,0 +1,10 @@
+kafka:
+  brokers: "localhost:9092"
+
+importer:
+  kafka:
+    topic: "zeebe-export"
+  elasticsearch:
+    url: "http://localhost:19200/"
+    bulk-size: 20
+    index-prefix: "zeebe-record"
