@@ -6,10 +6,10 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 @EnableScheduling
 @SpringBootApplication
-public class KafkaStreamerImportApplication {
+public class KafkaElasticImportApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(KafkaStreamerImportApplication.class, args);
+		SpringApplication.run(KafkaElasticImportApplication.class, args);
 	}
 
 }
