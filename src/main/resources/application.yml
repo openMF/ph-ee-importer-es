@@ -5,6 +5,6 @@ importer:
   kafka:
     topic: "zeebe-export"
   elasticsearch:
-    url: "http://operate-elasticsearch-master:9200/"
+    url: "http://operator-elasticsearch-master:9200/"
     bulk-size: 20
     index-prefix: "zeebe-record"
