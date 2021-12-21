@@ -5,6 +5,7 @@
 plugins {
     id 'java'
     id 'maven-publish'
+    id 'org.springframework.boot' version '2.1.9.RELEASE'
 }
 
 repositories {
@@ -19,12 +20,15 @@ repositories {
 }
 
 dependencies {
-    implementation 'io.zeebe:zeebe-elasticsearch-exporter:0.25.1'
+    implementation 'io.zeebe:zeebe-elasticsearch-exporter:0.24.6'
     implementation 'org.elasticsearch.client:elasticsearch-rest-high-level-client:7.6.0'
-    implementation 'org.springframework.boot:spring-boot-starter:2.2.4.RELEASE'
+    implementation 'org.apache.camel.springboot:camel-spring-boot-starter:3.4.0'
     implementation 'org.apache.kafka:kafka-streams:2.3.1'
     implementation 'org.springframework.kafka:spring-kafka:2.3.5.RELEASE'
     implementation 'org.json:json:20190722'
+    /*implementation('org.yaml:snakeyaml:1.25'){
+        force(true)
+    }*/
     testImplementation 'junit:junit:4.13'
 }
 
