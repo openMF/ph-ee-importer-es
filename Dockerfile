@@ -1,4 +1,4 @@
 FROM openjdk:13
-COPY build/libs/importer-*.jar .
+COPY build/libs/*.jar .
 CMD java -jar *.jar
 

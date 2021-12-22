@@ -6,6 +6,7 @@ plugins {
     id 'java'
     id 'maven-publish'
     id 'org.springframework.boot' version '2.1.9.RELEASE'
+    id 'eclipse'
 }
 
 repositories {
@@ -26,9 +27,6 @@ dependencies {
     implementation 'org.apache.kafka:kafka-streams:2.3.1'
     implementation 'org.springframework.kafka:spring-kafka:2.3.5.RELEASE'
     implementation 'org.json:json:20190722'
-    /*implementation('org.yaml:snakeyaml:1.25'){
-        force(true)
-    }*/
     testImplementation 'junit:junit:4.13'
 }
 
