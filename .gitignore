@@ -5,6 +5,7 @@ dependency-reduced-pom.xml
 
 target/
 .gradle
+build
 build/
 !gradle/wrapper/gradle-wrapper.jar
 
