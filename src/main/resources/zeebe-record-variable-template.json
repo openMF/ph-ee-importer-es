@@ -1,0 +1,67 @@
+{
+  "settings": {
+    "index": {
+      "number_of_shards": "5",
+      "number_of_replicas": "1"
+    }
+  },
+  "mappings": {
+    "_doc": {
+      "dynamic": true,
+      "properties": {
+        "brokerVersion": {
+          "type": "keyword"
+        },
+        "intent": {
+         "type": "keyword"
+       },
+        "key": {
+         "type": "long"
+       },
+        "partitionId": {
+         "type": "integer"
+        },
+        "position": {
+         "type": "long"
+        },
+        "recordType": {
+         "type": "keyword"
+       },
+       "rejectionReason": {
+          "type": "text"
+       },
+        "rejectionType": {
+          "type": "keyword"
+        },
+        "sourceRecordPosition": {
+          "type": "long"
+        },
+        "timestamp": {
+          "type": "date"
+        },
+        "value": {
+          "properties": {
+            "name": {
+              "type": "keyword"
+          },
+            "processDefinitionKey": {
+              "type": "long"
+          },
+            "processInstanceKey": {
+              "type": "long"
+          },
+            "ankita": {
+              "type": "text"
+            },
+            "scopeKey": {
+              "type": "long"
+          }
+        }
+      },
+        "valueType": {
+          "type": "keyword"
+      }
+    }
+    }
+  }
+}

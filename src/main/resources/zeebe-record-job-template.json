@@ -1,0 +1,93 @@
+{
+  "settings": {
+  "index": {
+    "number_of_shards": "5",
+    "number_of_replicas": "1"
+  }
+},
+  "mappings": {
+      "_doc": {
+        "dynamic": true,
+        "properties": {
+          "intent": {
+            "type": "keyword"
+          },
+          "key": {
+            "type": "long"
+          },
+          "partitionId": {
+            "type": "integer"
+          },
+          "position": {
+            "type": "long"
+          },
+          "recordType": {
+            "type": "keyword"
+          },
+          "rejectionReason": {
+            "type": "text"
+          },
+          "rejectionType": {
+            "type": "keyword"
+          },
+          "sourceRecordPosition": {
+            "type": "long"
+          },
+          "timestamp": {
+            "type": "date"
+          },
+          "value": {
+            "properties": {
+              "bpmnProcessId": {
+                "type": "keyword"
+              },
+              "customHeaders": {
+                "type": "object",
+                "enabled": false
+              },
+              "deadline": {
+                "type": "long"
+              },
+              "elementId": {
+                "type": "text"
+              },
+              "elementInstanceKey": {
+                "type": "long"
+              },
+              "errorCode": {
+                "type": "text"
+              },
+              "errorMessage": {
+                "type": "text"
+              },
+              "retries": {
+                "type": "long"
+              },
+              "type": {
+                "type": "keyword"
+              },
+              "variables": {
+                "type": "object",
+                "enabled": false
+              },
+              "worker": {
+                "type": "keyword"
+              },
+              "workflowDefinitionVersion": {
+                "type": "integer"
+              },
+              "workflowInstanceKey": {
+                "type": "long"
+              },
+              "workflowKey": {
+                "type": "long"
+              }
+            }
+          },
+          "valueType": {
+            "type": "keyword"
+          }
+        }
+      }
+    }
+}

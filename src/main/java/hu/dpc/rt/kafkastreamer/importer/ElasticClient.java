@@ -1,11 +1,15 @@
 package hu.dpc.rt.kafkastreamer.importer;
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.json.jackson.JacksonJsonpMapper;
+import co.elastic.clients.transport.ElasticsearchTransport;
+import co.elastic.clients.transport.rest_client.RestClientTransport;
+import io.camunda.zeebe.exporter.ElasticsearchExporterException;
+import io.camunda.zeebe.protocol.record.ValueType;
 import io.prometheus.client.Histogram;
-import io.zeebe.exporter.ElasticsearchExporter;
-import io.zeebe.exporter.ElasticsearchExporterException;
-import io.zeebe.exporter.ElasticsearchMetrics;
-import io.zeebe.protocol.record.ValueType;
-import io.zeebe.util.VersionUtil;
+import io.camunda.zeebe.exporter.ElasticsearchExporter;
+import io.camunda.zeebe.exporter.ElasticsearchMetrics;
+import io.camunda.zeebe.util.VersionUtil;
 import org.apache.http.HttpHost;
 import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
 import org.apache.http.impl.nio.reactor.IOReactorConfig;
@@ -18,8 +22,11 @@ import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestClientBuilder;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.client.indices.PutComposableIndexTemplateRequest;
+import org.elasticsearch.cluster.metadata.ComposableIndexTemplate;
+import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.xcontent.XContentHelper;
-import org.elasticsearch.common.xcontent.XContentType;
+import org.elasticsearch.xcontent.XContentType;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,10 +46,11 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 @Component
-public class ElasticsearchClient {
+public class ElasticClient {
     public static String INDEX_TEMPLATE_FILENAME_PATTERN = "/zeebe-record-%s-template.json";
     public static String INDEX_DELIMITER = "_";
     public static String ALIAS_DELIMITER = "-";
@@ -154,7 +162,14 @@ public class ElasticsearchClient {
                      ElasticsearchExporter.class.getResourceAsStream(filename)) {
             if (inputStream != null) {
                 template = XContentHelper.convertToMap(XContentType.JSON.xContent(), inputStream, true);
-            } else {
+                logger.info("Template Value "+ template.keySet().toString() );
+                logger.info("Template Value "+ template.toString());
+                for(Object value : template.values()){
+                    logger.info("Template Value "+ value.toString());
+                }
+
+            }
+            else {
                 throw new ElasticsearchExporterException(
                         "Failed to find index template in classpath " + filename);
             }
@@ -168,9 +183,12 @@ public class ElasticsearchClient {
 
         // update alias in template in case it was changed in configuration
         template.put("aliases", Collections.singletonMap(aliasName, Collections.EMPTY_MAP));
+        PutComposableIndexTemplateRequest request = new PutComposableIndexTemplateRequest().name(templateName);
 
-        PutIndexTemplateRequest request =
-                new PutIndexTemplateRequest(templateName).source(template);
+        ComposableIndexTemplate composableIndexTemplate = new ComposableIndexTemplate(Collections.singletonList(templateName + INDEX_DELIMITER + "*"),
+                null, null, null, null, null);
+
+        request.indexTemplate(composableIndexTemplate);
 
         return putIndexTemplate(request);
     }
@@ -178,12 +196,10 @@ public class ElasticsearchClient {
     /**
      * @return true if request was acknowledged
      */
-    private boolean putIndexTemplate(PutIndexTemplateRequest putIndexTemplateRequest) {
+    private boolean putIndexTemplate(PutComposableIndexTemplateRequest putIndexTemplateRequest) {
         try {
             return client
-                    .indices()
-                    .putTemplate(putIndexTemplateRequest, RequestOptions.DEFAULT)
-                    .isAcknowledged();
+                    .indices().putIndexTemplate(putIndexTemplateRequest,RequestOptions.DEFAULT).isAcknowledged();
         } catch (IOException e) {
             throw new ElasticsearchExporterException("Failed to put index template", e);
         }
@@ -195,8 +211,14 @@ public class ElasticsearchClient {
         // use single thread for rest client
         RestClientBuilder builder =
                 RestClient.builder(httpHost).setHttpClientConfigCallback(this::setHttpClientConfigCallback);
+        // Create the HLRC
+        RestHighLevelClient hlrc = new RestHighLevelClient(builder);
 
-        return new RestHighLevelClient(builder);
+        // Create the new Java Client with the same low level client
+        ElasticsearchTransport transport = new RestClientTransport(hlrc.getLowLevelClient(), new JacksonJsonpMapper());
+        ElasticsearchClient esClient = new ElasticsearchClient(transport);
+
+        return hlrc;
     }
 
     private HttpAsyncClientBuilder setHttpClientConfigCallback(HttpAsyncClientBuilder builder) {
@@ -254,11 +276,12 @@ public class ElasticsearchClient {
 
     private String indexPrefixForValueType(ValueType valueType) {
         String version = VersionUtil.getVersionLowerCase();
+        logger.info(version);
         return indexPrefix
                 + INDEX_DELIMITER
                 + valueTypeToString(valueType)
                 + INDEX_DELIMITER
-                + version;
+                + "1.1.0";
     }
 
     private static String valueTypeToString(ValueType valueType) {

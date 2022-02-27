@@ -1,0 +1,79 @@
+{
+  "settings": {
+  "index": {
+    "number_of_shards": "5",
+    "number_of_replicas": "1"
+  }
+},
+  "mappings": {
+     "_doc": {
+       "dynamic": true,
+       "properties": {
+         "intent": {
+           "type": "keyword"
+         },
+         "key": {
+           "type": "long"
+         },
+         "partitionId": {
+           "type": "integer"
+         },
+         "position": {
+           "type": "long"
+         },
+         "recordType": {
+           "type": "keyword"
+         },
+         "rejectionReason": {
+           "type": "text"
+         },
+         "rejectionType": {
+           "type": "keyword"
+         },
+         "sourceRecordPosition": {
+           "type": "long"
+         },
+         "timestamp": {
+           "type": "date"
+         },
+         "value": {
+           "properties": {
+             "deployedWorkflows": {
+               "properties": {
+                 "bpmnProcessId": {
+                   "type": "keyword"
+                 },
+                 "resourceName": {
+                   "type": "text"
+                 },
+                 "version": {
+                   "type": "long"
+                 },
+                 "workflowKey": {
+                   "type": "long"
+                 }
+               }
+             },
+             "resources": {
+               "properties": {
+                 "resource": {
+                   "type": "object",
+                   "enabled": false
+                 },
+                 "resourceName": {
+                   "type": "text"
+                 },
+                 "resourceType": {
+                   "type": "keyword"
+                 }
+               }
+             }
+           }
+         },
+         "valueType": {
+           "type": "keyword"
+         }
+       }
+     }
+    }
+  }

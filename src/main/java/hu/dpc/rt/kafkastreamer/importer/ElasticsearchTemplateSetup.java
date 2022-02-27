@@ -7,8 +7,9 @@
  */
 package hu.dpc.rt.kafkastreamer.importer;
 
-import io.zeebe.exporter.ElasticsearchExporterConfiguration.IndexConfiguration;
-import io.zeebe.protocol.record.ValueType;
+import io.camunda.zeebe.exporter.ElasticsearchExporterConfiguration.IndexConfiguration;
+import io.camunda.zeebe.protocol.record.ValueType;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +27,7 @@ public class ElasticsearchTemplateSetup {
     private String indexPrefix;
 
     @Autowired
-    private ElasticsearchClient client;
+    private ElasticClient client;
 
     @PostConstruct
     public void setup() {
@@ -66,14 +67,14 @@ public class ElasticsearchTemplateSetup {
             if (indexConfiguration.variableDocument) {
                 createValueIndexTemplate(ValueType.VARIABLE_DOCUMENT);
             }
-            if (indexConfiguration.workflowInstance) {
-                createValueIndexTemplate(ValueType.WORKFLOW_INSTANCE);
+            if (indexConfiguration.processInstance) {
+                createValueIndexTemplate(ValueType.PROCESS_INSTANCE);
             }
-            if (indexConfiguration.workflowInstanceCreation) {
-                createValueIndexTemplate(ValueType.WORKFLOW_INSTANCE_CREATION);
+            if (indexConfiguration.processInstanceCreation) {
+                createValueIndexTemplate(ValueType.PROCESS_INSTANCE_CREATION);
             }
-            if (indexConfiguration.workflowInstanceSubscription) {
-                createValueIndexTemplate(ValueType.WORKFLOW_INSTANCE_SUBSCRIPTION);
+            if (indexConfiguration.processMessageSubscription) {
+                createValueIndexTemplate(ValueType.PROCESS_MESSAGE_SUBSCRIPTION);
             }
         }
     }
@@ -82,12 +83,14 @@ public class ElasticsearchTemplateSetup {
         final String templateName = indexPrefix;
         final String aliasName = indexPrefix;
         final String filename = ZEEBE_RECORD_TEMPLATE_JSON;
+        logger.info("Put index template {} from file {} ", templateName, filename);
         if (!client.putIndexTemplate(templateName, aliasName, filename)) {
             logger.warn("Put index template {} from file {} was not acknowledged", templateName, filename);
         }
     }
 
     private void createValueIndexTemplate(final ValueType valueType) {
+        logger.info("Put index template for value type {}", valueType);
         if (!client.putIndexTemplate(valueType)) {
             logger.warn("Put index template for value type {} was not acknowledged", valueType);
         }
