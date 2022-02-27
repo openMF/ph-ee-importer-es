@@ -182,8 +182,7 @@ public class ElasticClient {
         template.put("aliases", Collections.singletonMap(aliasName, Collections.EMPTY_MAP));
 
         PutIndexTemplateRequest request =
-                new PutIndexTemplateRequest(templateName).source(template);
-        request.settings(Settings.builder()
+                new PutIndexTemplateRequest(templateName).source(template).settings(Settings.builder()
                 .put("index.number_of_shards", 5)
                 .put("index.number_of_replicas", 1)
         );
@@ -276,10 +275,10 @@ public class ElasticClient {
 
     private String indexPrefixForValueType(ValueType valueType) {
         String version = VersionUtil.getVersionLowerCase();
+        logger.info(version);
         return indexPrefix
                 + INDEX_DELIMITER
-                + valueTypeToString(valueType)
-                + INDEX_DELIMITER;
+                + valueTypeToString(valueType);
     }
 
     private static String valueTypeToString(ValueType valueType) {
