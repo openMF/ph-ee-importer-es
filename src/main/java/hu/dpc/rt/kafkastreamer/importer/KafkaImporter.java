@@ -12,7 +12,7 @@ public class KafkaImporter {
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    private ElasticsearchClient elasticsearchClient;
+    private ElasticClient elasticClient;
 
 
     @KafkaListener(topics = "${importer.kafka.topic}")
@@ -20,10 +20,10 @@ public class KafkaImporter {
         JSONObject data = new JSONObject(rawData);
         logger.trace("from kafka: {}", data.toString(2));
 
-        elasticsearchClient.index(data);
+        elasticClient.index(data);
 
-        if (elasticsearchClient.shouldFlush()) {
-            int flushed = elasticsearchClient.flush();
+        if (elasticClient.shouldFlush()) {
+            int flushed = elasticClient.flush();
             logger.info("flushed {} records to ES", flushed);
         }
     }

@@ -1,5 +1,9 @@
 package hu.dpc.rt.kafkastreamer.importer;
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.json.jackson.JacksonJsonpMapper;
+import co.elastic.clients.transport.ElasticsearchTransport;
+import co.elastic.clients.transport.rest_client.RestClientTransport;
 import io.prometheus.client.Histogram;
 import io.zeebe.exporter.ElasticsearchExporter;
 import io.zeebe.exporter.ElasticsearchExporterException;
@@ -19,7 +23,7 @@ import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestClientBuilder;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.xcontent.XContentHelper;
-import org.elasticsearch.common.xcontent.XContentType;
+import org.elasticsearch.xcontent.XContentType;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +46,7 @@ import java.util.Collections;
 import java.util.Map;
 
 @Component
-public class ElasticsearchClient {
+public class ElasticClient {
     public static String INDEX_TEMPLATE_FILENAME_PATTERN = "/zeebe-record-%s-template.json";
     public static String INDEX_DELIMITER = "_";
     public static String ALIAS_DELIMITER = "-";
@@ -195,8 +199,14 @@ public class ElasticsearchClient {
         // use single thread for rest client
         RestClientBuilder builder =
                 RestClient.builder(httpHost).setHttpClientConfigCallback(this::setHttpClientConfigCallback);
+        // Create the HLRC
+        RestHighLevelClient hlrc = new RestHighLevelClient(builder);
 
-        return new RestHighLevelClient(builder);
+        // Create the new Java Client with the same low level client
+        ElasticsearchTransport transport = new RestClientTransport(hlrc.getLowLevelClient(), new JacksonJsonpMapper());
+        ElasticsearchClient esClient = new ElasticsearchClient(transport);
+
+        return hlrc;
     }
 
     private HttpAsyncClientBuilder setHttpClientConfigCallback(HttpAsyncClientBuilder builder) {
