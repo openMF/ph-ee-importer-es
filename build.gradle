@@ -22,7 +22,10 @@ repositories {
 
 dependencies {
     implementation 'io.zeebe:zeebe-elasticsearch-exporter:0.24.6'
-    implementation 'org.elasticsearch.client:elasticsearch-rest-high-level-client:7.6.0'
+    implementation 'org.elasticsearch.client:elasticsearch-rest-high-level-client:7.16.3'
+    implementation 'org.elasticsearch.client:elasticsearch-rest-client:7.16.3'
+    implementation 'co.elastic.clients:elasticsearch-java:7.16.3'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.12.3'
     implementation 'org.apache.camel.springboot:camel-spring-boot-starter:3.4.0'
     implementation 'org.apache.kafka:kafka-streams:2.3.1'
     implementation 'org.springframework.kafka:spring-kafka:2.3.5.RELEASE'

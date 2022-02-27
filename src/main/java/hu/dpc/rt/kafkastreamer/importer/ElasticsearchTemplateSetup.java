@@ -26,7 +26,7 @@ public class ElasticsearchTemplateSetup {
     private String indexPrefix;
 
     @Autowired
-    private ElasticsearchClient client;
+    private ElasticClient client;
 
     @PostConstruct
     public void setup() {
