@@ -22,6 +22,7 @@ import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestClientBuilder;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.xcontent.XContentHelper;
 import org.elasticsearch.xcontent.XContentType;
 import org.json.JSONObject;
@@ -182,6 +183,10 @@ public class ElasticClient {
 
         PutIndexTemplateRequest request =
                 new PutIndexTemplateRequest(templateName).source(template);
+        request.settings(Settings.builder()
+                .put("index.number_of_shards", 5)
+                .put("index.number_of_replicas", 1)
+        );
 
         return putIndexTemplate(request);
     }

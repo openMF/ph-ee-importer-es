@@ -7,7 +7,7 @@
 },
   "mappings": {
       "_doc": {
-        "dynamic": "true",
+        "dynamic": true,
         "properties": {
           "intent": {
             "type": "keyword"
