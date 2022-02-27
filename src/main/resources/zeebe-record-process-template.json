@@ -1,4 +1,6 @@
 {
+  "mappings": {
+    "_doc": {
       "properties": {
         "brokerVersion": {
           "type": "keyword"
@@ -58,4 +60,6 @@
           "type": "keyword"
         }
       }
+    }
+    }
 }

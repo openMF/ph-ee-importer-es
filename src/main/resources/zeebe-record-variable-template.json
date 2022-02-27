@@ -1,26 +1,28 @@
 {
+  "mappings": {
+    "_doc": {
       "properties": {
         "brokerVersion": {
           "type": "keyword"
         },
         "intent": {
-          "type": "keyword"
-        },
+         "type": "keyword"
+       },
         "key": {
-          "type": "long"
-        },
+         "type": "long"
+       },
         "partitionId": {
-          "type": "integer"
+         "type": "integer"
         },
         "position": {
-          "type": "long"
+         "type": "long"
         },
         "recordType": {
-          "type": "keyword"
-        },
-        "rejectionReason": {
+         "type": "keyword"
+       },
+       "rejectionReason": {
           "type": "text"
-        },
+       },
         "rejectionType": {
           "type": "keyword"
         },
@@ -34,20 +36,22 @@
           "properties": {
             "name": {
               "type": "keyword"
-            },
+          },
             "processDefinitionKey": {
               "type": "long"
-            },
+          },
             "processInstanceKey": {
               "type": "long"
-            },
+          },
             "scopeKey": {
               "type": "long"
-            }
           }
-        },
+        }
+      },
         "valueType": {
           "type": "keyword"
-        }
       }
+    }
+    }
+  }
 }

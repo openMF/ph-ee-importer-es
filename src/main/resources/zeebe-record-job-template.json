@@ -1,82 +1,86 @@
 {
-      "properties": {
-        "intent": {
-          "type": "keyword"
-        },
-        "key": {
-          "type": "long"
-        },
-        "partitionId": {
-          "type": "integer"
-        },
-        "position": {
-          "type": "long"
-        },
-        "recordType": {
-          "type": "keyword"
-        },
-        "rejectionReason": {
-          "type": "text"
-        },
-        "rejectionType": {
-          "type": "keyword"
-        },
-        "sourceRecordPosition": {
-          "type": "long"
-        },
-        "timestamp": {
-          "type": "date"
-        },
-        "value": {
-          "properties": {
-            "bpmnProcessId": {
-              "type": "keyword"
-            },
-            "customHeaders": {
-              "type": "object",
-              "enabled": false
-            },
-            "deadline": {
-              "type": "long"
-            },
-            "elementId": {
-              "type": "text"
-            },
-            "elementInstanceKey": {
-              "type": "long"
-            },
-            "errorCode": {
-              "type": "text"
-            },
-            "errorMessage": {
-              "type": "text"
-            },
-            "retries": {
-              "type": "long"
-            },
-            "type": {
-              "type": "keyword"
-            },
-            "variables": {
-              "type": "object",
-              "enabled": false
-            },
-            "worker": {
-              "type": "keyword"
-            },
-            "workflowDefinitionVersion": {
-              "type": "integer"
-            },
-            "workflowInstanceKey": {
-              "type": "long"
-            },
-            "workflowKey": {
-              "type": "long"
+  "mappings": {
+      "_doc": {
+        "properties": {
+          "intent": {
+            "type": "keyword"
+          },
+          "key": {
+            "type": "long"
+          },
+          "partitionId": {
+            "type": "integer"
+          },
+          "position": {
+            "type": "long"
+          },
+          "recordType": {
+            "type": "keyword"
+          },
+          "rejectionReason": {
+            "type": "text"
+          },
+          "rejectionType": {
+            "type": "keyword"
+          },
+          "sourceRecordPosition": {
+            "type": "long"
+          },
+          "timestamp": {
+            "type": "date"
+          },
+          "value": {
+            "properties": {
+              "bpmnProcessId": {
+                "type": "keyword"
+              },
+              "customHeaders": {
+                "type": "object",
+                "enabled": false
+              },
+              "deadline": {
+                "type": "long"
+              },
+              "elementId": {
+                "type": "text"
+              },
+              "elementInstanceKey": {
+                "type": "long"
+              },
+              "errorCode": {
+                "type": "text"
+              },
+              "errorMessage": {
+                "type": "text"
+              },
+              "retries": {
+                "type": "long"
+              },
+              "type": {
+                "type": "keyword"
+              },
+              "variables": {
+                "type": "object",
+                "enabled": false
+              },
+              "worker": {
+                "type": "keyword"
+              },
+              "workflowDefinitionVersion": {
+                "type": "integer"
+              },
+              "workflowInstanceKey": {
+                "type": "long"
+              },
+              "workflowKey": {
+                "type": "long"
+              }
             }
+          },
+          "valueType": {
+            "type": "keyword"
           }
-        },
-        "valueType": {
-          "type": "keyword"
         }
       }
+    }
 }
