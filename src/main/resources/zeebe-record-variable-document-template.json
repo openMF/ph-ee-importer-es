@@ -1,48 +1,52 @@
 {
-      "properties": {
-        "intent": {
-          "type": "keyword"
-        },
-        "key": {
-          "type": "long"
-        },
-        "partitionId": {
-          "type": "integer"
-        },
-        "position": {
-          "type": "long"
-        },
-        "recordType": {
-          "type": "keyword"
-        },
-        "rejectionReason": {
-          "type": "text"
-        },
-        "rejectionType": {
-          "type": "keyword"
-        },
-        "sourceRecordPosition": {
-          "type": "long"
-        },
-        "timestamp": {
-          "type": "date"
-        },
-        "value": {
-          "properties": {
-            "scopeKey": {
-              "type": "long"
-            },
-            "updateSemantics": {
-              "type": "keyword"
-            },
-            "variables": {
-              "type": "object",
-              "enabled": false
+  "mappings": {
+      "_doc": {
+        "properties": {
+          "intent": {
+            "type": "keyword"
+          },
+          "key": {
+            "type": "long"
+          },
+          "partitionId": {
+            "type": "integer"
+          },
+          "position": {
+            "type": "long"
+          },
+          "recordType": {
+            "type": "keyword"
+          },
+          "rejectionReason": {
+            "type": "text"
+          },
+          "rejectionType": {
+            "type": "keyword"
+          },
+          "sourceRecordPosition": {
+            "type": "long"
+          },
+          "timestamp": {
+            "type": "date"
+          },
+          "value": {
+            "properties": {
+              "scopeKey": {
+                "type": "long"
+              },
+              "updateSemantics": {
+                "type": "keyword"
+              },
+              "variables": {
+                "type": "object",
+                "enabled": false
+              }
             }
+          },
+          "valueType": {
+            "type": "keyword"
           }
-        },
-        "valueType": {
-          "type": "keyword"
         }
       }
+    }
 }
