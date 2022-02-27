@@ -22,6 +22,8 @@ import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestClientBuilder;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.client.indices.PutComposableIndexTemplateRequest;
+import org.elasticsearch.cluster.metadata.ComposableIndexTemplate;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.xcontent.XContentHelper;
 import org.elasticsearch.xcontent.XContentType;
@@ -44,6 +46,7 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 @Component
@@ -180,12 +183,12 @@ public class ElasticClient {
 
         // update alias in template in case it was changed in configuration
         template.put("aliases", Collections.singletonMap(aliasName, Collections.EMPTY_MAP));
+        PutComposableIndexTemplateRequest request = new PutComposableIndexTemplateRequest().name(templateName);
 
-        PutIndexTemplateRequest request =
-                new PutIndexTemplateRequest(templateName).source(template).settings(Settings.builder()
-                .put("index.number_of_shards", 5)
-                .put("index.number_of_replicas", 1)
-        );
+        ComposableIndexTemplate composableIndexTemplate = new ComposableIndexTemplate(Collections.singletonList(templateName + INDEX_DELIMITER + "*"),
+                null, null, null, null, null);
+
+        request.indexTemplate(composableIndexTemplate);
 
         return putIndexTemplate(request);
     }
@@ -193,12 +196,10 @@ public class ElasticClient {
     /**
      * @return true if request was acknowledged
      */
-    private boolean putIndexTemplate(PutIndexTemplateRequest putIndexTemplateRequest) {
+    private boolean putIndexTemplate(PutComposableIndexTemplateRequest putIndexTemplateRequest) {
         try {
             return client
-                    .indices()
-                    .putTemplate(putIndexTemplateRequest, RequestOptions.DEFAULT)
-                    .isAcknowledged();
+                    .indices().putIndexTemplate(putIndexTemplateRequest,RequestOptions.DEFAULT).isAcknowledged();
         } catch (IOException e) {
             throw new ElasticsearchExporterException("Failed to put index template", e);
         }
