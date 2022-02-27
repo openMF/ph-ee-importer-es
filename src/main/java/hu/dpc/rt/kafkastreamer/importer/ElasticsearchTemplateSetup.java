@@ -82,12 +82,14 @@ public class ElasticsearchTemplateSetup {
         final String templateName = indexPrefix;
         final String aliasName = indexPrefix;
         final String filename = ZEEBE_RECORD_TEMPLATE_JSON;
+        logger.info("Put index template {} from file {} ", templateName, filename);
         if (!client.putIndexTemplate(templateName, aliasName, filename)) {
             logger.warn("Put index template {} from file {} was not acknowledged", templateName, filename);
         }
     }
 
     private void createValueIndexTemplate(final ValueType valueType) {
+        logger.info("Put index template for value type {}", valueType);
         if (!client.putIndexTemplate(valueType)) {
             logger.warn("Put index template for value type {} was not acknowledged", valueType);
         }

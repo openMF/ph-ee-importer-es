@@ -1,0 +1,70 @@
+{
+  "mappings": {
+      "properties": {
+        "brokerVersion": {
+          "type": "keyword"
+        },
+        "intent": {
+          "type": "keyword"
+        },
+        "key": {
+          "type": "long"
+        },
+        "partitionId": {
+          "type": "integer"
+        },
+        "position": {
+          "type": "long"
+        },
+        "recordType": {
+          "type": "keyword"
+        },
+        "rejectionReason": {
+          "type": "text"
+        },
+        "rejectionType": {
+          "type": "keyword"
+        },
+        "sourceRecordPosition": {
+          "type": "long"
+        },
+        "timestamp": {
+          "type": "date"
+        },
+        "value": {
+          "properties": {
+            "bpmnProcessId": {
+              "type": "keyword"
+            },
+            "elementId": {
+              "type": "keyword"
+            },
+            "elementInstanceKey": {
+              "type": "long"
+            },
+            "errorMessage": {
+              "type": "text"
+            },
+            "errorType": {
+              "type": "keyword"
+            },
+            "jobKey": {
+              "type": "long"
+            },
+            "processDefinitionKey": {
+              "type": "long"
+            },
+            "processInstanceKey": {
+              "type": "long"
+            },
+            "variableScopeKey": {
+              "type": "long"
+            }
+          }
+        },
+        "valueType": {
+          "type": "keyword"
+        }
+      }
+    }
+}
