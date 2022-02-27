@@ -1,5 +1,4 @@
 {
-  "mappings": {
       "properties": {
         "intent": {
           "type": "keyword"
@@ -46,5 +45,4 @@
           "type": "keyword"
         }
       }
-    }
 }
