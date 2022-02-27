@@ -50,6 +50,9 @@
             "processInstanceKey": {
               "type": "long"
           },
+            "ankita": {
+              "type": "text"
+            },
             "scopeKey": {
               "type": "long"
           }
