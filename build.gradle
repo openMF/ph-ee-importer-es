@@ -21,7 +21,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'io.zeebe:zeebe-elasticsearch-exporter:0.24.6'
+    implementation 'io.zeebe:zeebe-elasticsearch-exporter:0.26.6'
     implementation 'org.elasticsearch.client:elasticsearch-rest-high-level-client:7.16.3'
     implementation 'org.elasticsearch.client:elasticsearch-rest-client:7.16.3'
     implementation 'co.elastic.clients:elasticsearch-java:7.16.3'

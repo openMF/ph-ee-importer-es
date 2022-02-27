@@ -274,8 +274,7 @@ public class ElasticClient {
         return indexPrefix
                 + INDEX_DELIMITER
                 + valueTypeToString(valueType)
-                + INDEX_DELIMITER
-                + version;
+                + INDEX_DELIMITER;
     }
 
     private static String valueTypeToString(ValueType valueType) {
