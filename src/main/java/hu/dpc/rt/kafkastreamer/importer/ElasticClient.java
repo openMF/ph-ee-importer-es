@@ -158,7 +158,14 @@ public class ElasticClient {
                      ElasticsearchExporter.class.getResourceAsStream(filename)) {
             if (inputStream != null) {
                 template = XContentHelper.convertToMap(XContentType.JSON.xContent(), inputStream, true);
-            } else {
+                logger.info("Template Value "+ template.keySet().toString() );
+                logger.info("Template Value "+ template.toString());
+                for(Object value : template.values()){
+                    logger.info("Template Value "+ value.toString());
+                }
+
+            }
+            else {
                 throw new ElasticsearchExporterException(
                         "Failed to find index template in classpath " + filename);
             }
