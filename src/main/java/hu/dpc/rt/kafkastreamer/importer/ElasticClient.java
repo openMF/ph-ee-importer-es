@@ -278,7 +278,9 @@ public class ElasticClient {
         logger.info(version);
         return indexPrefix
                 + INDEX_DELIMITER
-                + valueTypeToString(valueType);
+                + valueTypeToString(valueType)
+                + INDEX_DELIMITER
+                + "1.1.0";
     }
 
     private static String valueTypeToString(ValueType valueType) {
