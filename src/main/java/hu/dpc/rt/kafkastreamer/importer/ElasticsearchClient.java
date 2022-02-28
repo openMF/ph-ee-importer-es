@@ -85,7 +85,12 @@ public class ElasticsearchClient {
         if (metrics == null) {
             metrics = new ElasticsearchMetrics(record.getInt("partitionId"));
         }
+        if(record.has("value.processInstanceKey")){
+            Long processId = record.getLong("value.processInstanceKey");
+            logger.info("Process Id before :" + processId);
+            record.put("value.processInstanceKey", processId.toString());
 
+        }
         IndexRequest request =
                 new IndexRequest(indexFor(record), typeFor(record), idFor(record))
                         .source(record.toString(), XContentType.JSON)
