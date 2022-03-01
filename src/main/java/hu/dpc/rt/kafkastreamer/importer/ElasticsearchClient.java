@@ -1,11 +1,11 @@
 package hu.dpc.rt.kafkastreamer.importer;
 
+import io.camunda.zeebe.exporter.ElasticsearchMetrics;
+import io.camunda.zeebe.protocol.record.ValueType;
+import io.camunda.zeebe.util.VersionUtil;
 import io.prometheus.client.Histogram;
-import io.zeebe.exporter.ElasticsearchExporter;
-import io.zeebe.exporter.ElasticsearchExporterException;
-import io.zeebe.exporter.ElasticsearchMetrics;
-import io.zeebe.protocol.record.ValueType;
-import io.zeebe.util.VersionUtil;
+import io.camunda.zeebe.exporter.ElasticsearchExporter;
+import io.camunda.zeebe.exporter.ElasticsearchExporterException;
 import org.apache.http.HttpHost;
 import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
 import org.apache.http.impl.nio.reactor.IOReactorConfig;
@@ -19,7 +19,7 @@ import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestClientBuilder;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.xcontent.XContentHelper;
-import org.elasticsearch.common.xcontent.XContentType;
+import org.elasticsearch.xcontent.XContentType;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,6 +84,16 @@ public class ElasticsearchClient {
     public void index(JSONObject record) {
         if (metrics == null) {
             metrics = new ElasticsearchMetrics(record.getInt("partitionId"));
+        }
+        if(record.has("value")){
+            JSONObject valueObj = record.getJSONObject("value");
+            if(valueObj.has("processInstanceKey")) {
+                Long processId = valueObj.getLong("processInstanceKey");
+                logger.info("Value Obj before :" + valueObj);
+                valueObj.put("processInstanceKey", String.valueOf(processId));
+                logger.info("Value Obj After :" + valueObj);
+                record.put("value", valueObj);
+            }
         }
 
         IndexRequest request =
