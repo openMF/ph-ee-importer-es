@@ -8,3 +8,7 @@ importer:
     url: "http://ph-ee-elasticsearch:9200/"
     bulk-size: 20
     index-prefix: "zeebe-record"
+
+logging:
+  level:
+    ROOT: ERROR
