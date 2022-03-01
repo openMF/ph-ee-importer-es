@@ -95,7 +95,6 @@ public class ElasticsearchClient {
                 record.put("value", valueObj);
             }
         }
-
         IndexRequest request =
                 new IndexRequest(indexFor(record), typeFor(record), idFor(record))
                         .source(record.toString(), XContentType.JSON)
