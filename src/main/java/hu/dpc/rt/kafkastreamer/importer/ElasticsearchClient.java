@@ -85,11 +85,14 @@ public class ElasticsearchClient {
         if (metrics == null) {
             metrics = new ElasticsearchMetrics(record.getInt("partitionId"));
         }
-        if(record.has("value.processInstanceKey")){
-            Long processId = record.getLong("value.processInstanceKey");
-            logger.info("Process Id before :" + processId);
-            record.put("value.processInstanceKey", processId.toString());
-
+        if(record.has("value")){
+            JSONObject valueObj = record.getJSONObject("value");
+            if(valueObj.has("processInstanceKey")) {
+                System.out.println("Process Id before :" + valueObj);
+                Long processId = valueObj.getLong("value");
+                System.out.println("Process Id before :" + processId);
+                valueObj.put("value.processInstanceKey", processId.toString());
+            }
         }
         IndexRequest request =
                 new IndexRequest(indexFor(record), typeFor(record), idFor(record))
