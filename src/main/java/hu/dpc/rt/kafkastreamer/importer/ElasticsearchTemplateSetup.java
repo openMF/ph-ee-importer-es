@@ -7,8 +7,8 @@
  */
 package hu.dpc.rt.kafkastreamer.importer;
 
-import io.zeebe.exporter.ElasticsearchExporterConfiguration.IndexConfiguration;
-import io.zeebe.protocol.record.ValueType;
+import io.camunda.zeebe.exporter.ElasticsearchExporterConfiguration.IndexConfiguration;
+import io.camunda.zeebe.protocol.record.ValueType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,14 +66,14 @@ public class ElasticsearchTemplateSetup {
             if (indexConfiguration.variableDocument) {
                 createValueIndexTemplate(ValueType.VARIABLE_DOCUMENT);
             }
-            if (indexConfiguration.workflowInstance) {
-                createValueIndexTemplate(ValueType.WORKFLOW_INSTANCE);
+            if (indexConfiguration.processInstance) {
+                createValueIndexTemplate(ValueType.PROCESS_INSTANCE);
             }
-            if (indexConfiguration.workflowInstanceCreation) {
-                createValueIndexTemplate(ValueType.WORKFLOW_INSTANCE_CREATION);
+            if (indexConfiguration.processInstanceCreation) {
+                createValueIndexTemplate(ValueType.PROCESS_INSTANCE_CREATION);
             }
-            if (indexConfiguration.workflowInstanceSubscription) {
-                createValueIndexTemplate(ValueType.WORKFLOW_INSTANCE_SUBSCRIPTION);
+            if (indexConfiguration.processMessageSubscription) {
+                createValueIndexTemplate(ValueType.PROCESS_MESSAGE_SUBSCRIPTION);
             }
         }
     }
