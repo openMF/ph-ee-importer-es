@@ -91,7 +91,7 @@ public class ElasticsearchClient {
                 System.out.println("Process Id before :" + valueObj);
                 Long processId = valueObj.getLong("processInstanceKey");
                 System.out.println("Process Id before :" + processId);
-                valueObj.put("value.processInstanceKey", processId.toString());
+                valueObj.put("processInstanceKey", processId.toString());
             }
         }
         IndexRequest request =
