@@ -88,10 +88,11 @@ public class ElasticsearchClient {
         if(record.has("value")){
             JSONObject valueObj = record.getJSONObject("value");
             if(valueObj.has("processInstanceKey")) {
-                System.out.println("Process Id before :" + valueObj);
                 Long processId = valueObj.getLong("processInstanceKey");
-                System.out.println("Process Id before :" + processId);
-                valueObj.put("processInstanceKey", processId.toString());
+                logger.info("Value Obj before :" + valueObj);
+                valueObj.put("processInstanceKey", String.valueOf(processId));
+                logger.info("Value Obj After :" + valueObj);
+                record.put("value", valueObj);
             }
         }
         IndexRequest request =
