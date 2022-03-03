@@ -18,6 +18,12 @@ import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestClientBuilder;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.client.indices.PutComposableIndexTemplateRequest;
+import org.elasticsearch.cluster.metadata.AliasMetadata;
+import org.elasticsearch.cluster.metadata.ComposableIndexTemplate;
+import org.elasticsearch.cluster.metadata.Template;
+import org.elasticsearch.common.bytes.BytesReference;
+import org.elasticsearch.common.compress.CompressedXContent;
 import org.elasticsearch.common.xcontent.XContentHelper;
 import org.elasticsearch.xcontent.XContentType;
 import org.json.JSONObject;
@@ -39,6 +45,7 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 @Component
@@ -158,11 +165,11 @@ public class ElasticsearchClient {
      */
     public boolean putIndexTemplate(
             String templateName, String aliasName, String filename) {
-        Map<String, Object> template;
+        CompressedXContent template;
         try (InputStream inputStream =
                      ElasticsearchExporter.class.getResourceAsStream(filename)) {
             if (inputStream != null) {
-                template = XContentHelper.convertToMap(XContentType.JSON.xContent(), inputStream, true);
+                template = new CompressedXContent ((BytesReference) inputStream);
             } else {
                 throw new ElasticsearchExporterException(
                         "Failed to find index template in classpath " + filename);
@@ -173,25 +180,31 @@ public class ElasticsearchClient {
         }
 
         // update prefix in template in case it was changed in configuration
-        template.put("index_patterns", Collections.singletonList(templateName + INDEX_DELIMITER + "*"));
+       // template.put("index_patterns", Collections.singletonList(templateName + INDEX_DELIMITER + "*"));
 
         // update alias in template in case it was changed in configuration
-        template.put("aliases", Collections.singletonMap(aliasName, Collections.EMPTY_MAP));
+        //template.put("aliases", Collections.singletonMap(aliasName, Collections.EMPTY_MAP));
 
-        PutIndexTemplateRequest request =
-                new PutIndexTemplateRequest(templateName).source(template);
+        Template template1 = new Template(null, template,Collections.singletonMap(aliasName, AliasMetadata.newAliasMetadataBuilder(null).build()));
+
+        PutComposableIndexTemplateRequest request = new PutComposableIndexTemplateRequest().name(templateName);
+        ComposableIndexTemplate composableIndexTemplate = new ComposableIndexTemplate( Collections.singletonList(templateName + INDEX_DELIMITER + "*"),
+                template1, null, null, null, null);
+        request.indexTemplate(composableIndexTemplate);
+        //PutIndexTemplateRequest request = new PutIndexTemplateRequest(templateName).source(template);
 
         return putIndexTemplate(request);
     }
 
     /**
      * @return true if request was acknowledged
+     * @param putIndexTemplateRequest
      */
-    private boolean putIndexTemplate(PutIndexTemplateRequest putIndexTemplateRequest) {
+    private boolean putIndexTemplate(PutComposableIndexTemplateRequest putIndexTemplateRequest) {
         try {
             return client
                     .indices()
-                    .putTemplate(putIndexTemplateRequest, RequestOptions.DEFAULT)
+                    .putIndexTemplate(putIndexTemplateRequest,RequestOptions.DEFAULT)
                     .isAcknowledged();
         } catch (IOException e) {
             throw new ElasticsearchExporterException("Failed to put index template", e);
