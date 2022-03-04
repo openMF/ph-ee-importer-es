@@ -27,6 +27,7 @@ dependencies {
     implementation 'org.apache.kafka:kafka-streams:2.3.1'
     implementation 'org.springframework.kafka:spring-kafka:2.3.5.RELEASE'
     implementation 'org.json:json:20190722'
+    implementation 'commons-io:commons-io:2.11.0'
     testImplementation 'junit:junit:4.13'
 }
 
