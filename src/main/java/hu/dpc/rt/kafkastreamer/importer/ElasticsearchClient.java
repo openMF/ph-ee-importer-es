@@ -188,7 +188,7 @@ public class ElasticsearchClient {
         // update alias in template in case it was changed in configuration
         //template.put("aliases", Collections.singletonMap(aliasName, Collections.EMPTY_MAP));
 
-        Template template1 = new Template(null, template,Collections.singletonMap(aliasName, AliasMetadata.newAliasMetadataBuilder(null).build()));
+        Template template1 = new Template(null, template,Collections.singletonMap(aliasName, AliasMetadata.newAliasMetadataBuilder(aliasName).build()));
 
         PutComposableIndexTemplateRequest request = new PutComposableIndexTemplateRequest().name(templateName);
         ComposableIndexTemplate composableIndexTemplate = new ComposableIndexTemplate( Collections.singletonList(templateName + INDEX_DELIMITER + "*"),
