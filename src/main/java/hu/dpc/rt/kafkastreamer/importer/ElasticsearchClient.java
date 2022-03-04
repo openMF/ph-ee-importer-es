@@ -6,6 +6,7 @@ import io.camunda.zeebe.util.VersionUtil;
 import io.prometheus.client.Histogram;
 import io.camunda.zeebe.exporter.ElasticsearchExporter;
 import io.camunda.zeebe.exporter.ElasticsearchExporterException;
+import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpHost;
 import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
 import org.apache.http.impl.nio.reactor.IOReactorConfig;
@@ -170,7 +171,8 @@ public class ElasticsearchClient {
         try (InputStream inputStream =
                      ElasticsearchExporter.class.getResourceAsStream(filename)) {
             if (inputStream != null) {
-                template = new CompressedXContent ((BytesReference) inputStream);
+                byte[] bytes = IOUtils.toByteArray(inputStream);
+                template = new CompressedXContent (bytes);
             } else {
                 throw new ElasticsearchExporterException(
                         "Failed to find index template in classpath " + filename);
