@@ -107,7 +107,7 @@ public class ElasticsearchClient {
             }
             if(!newRecord.has("processInstanceKey"))
                 newRecord.put("processInstanceKey",valueObj.getLong("processInstanceKey"));
-                Instant timestamp = Instant.ofEpochMilli(record.getLong("value"));
+                Instant timestamp = Instant.ofEpochMilli(record.getLong("timestamp"));
                 newRecord.put("timestamp",timestamp);
             }
             logger.info("New Record before insert is: "+ newRecord);
