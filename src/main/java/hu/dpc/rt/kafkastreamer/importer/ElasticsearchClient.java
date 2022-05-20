@@ -95,11 +95,8 @@ public class ElasticsearchClient {
             if(valueObj.has("name")){
                 if(!valueObj.getString("name").contains("Request") && !valueObj.getString("name")
                         .contains("Body") && !valueObj.getString("name").contains("json")){
-                    if(valueObj.getString("name").equalsIgnoreCase("amount")||
-                            valueObj.getString("name").equalsIgnoreCase("phoneNumber")){
-
-                        newRecord.put((String) valueObj.get("name"),Integer.parseInt(valueObj.getString("value")
-                                .replaceAll("^\"|\"$", "").replaceAll("[-+^]*", "")));
+                    if(valueObj.getString("name").equalsIgnoreCase("amount")){
+                        newRecord.put((String) valueObj.get("name"),Integer.parseInt(valueObj.getString("value")));
                     }
                     else if(valueObj.getString("name").equalsIgnoreCase("originDate")){
                         Instant timestamp = Instant.ofEpochMilli(valueObj.getLong("value"));
@@ -110,7 +107,8 @@ public class ElasticsearchClient {
             }
             if(!newRecord.has("processInstanceKey"))
                 newRecord.put("processInstanceKey",valueObj.getLong("processInstanceKey"));
-                newRecord.put("timestamp",record.getLong("timestamp"));
+                Instant timestamp = Instant.ofEpochMilli(record.getLong("value"));
+                newRecord.put("timestamp",timestamp);
             }
             logger.info("New Record before insert is: "+ newRecord);
             String version = VersionUtil.getVersionLowerCase();
@@ -206,14 +204,18 @@ public class ElasticsearchClient {
         // update alias in template in case it was changed in configuration
         template.put("aliases", Collections.singletonMap(aliasName, Collections.EMPTY_MAP));
 
+
+        if(templateName.equals("zeebe-record")){
+            Map<String, Object> settings = (Map<String, Object>) template.get("settings");
+            Map<String, Object> templateToPut = new HashMap<>();
+            templateToPut.put("settings",settings);
+            templateToPut.put("index_patterns", Collections.singletonList("zeebe-payments" + INDEX_DELIMITER + "*"));
+            //template1.put("template",)
+            PutIndexTemplateRequest  request = new PutIndexTemplateRequest("zeebe-payments").source(templateToPut);
+            putIndexTemplate(request);
+        }
         PutIndexTemplateRequest request =
                 new PutIndexTemplateRequest(templateName).source(template);
-        if(templateName.contains("zeebe-record_variable") && ! templateName.contains("document")){
-            Map<String, Object> template1 = new HashMap<>();
-            template1.put("index_patterns", Collections.singletonList("zeebe-payments" + INDEX_DELIMITER + "*"));
-            request = new PutIndexTemplateRequest("zeebe-payments").source(template1);
-
-        }
 
         return putIndexTemplate(request);
     }
