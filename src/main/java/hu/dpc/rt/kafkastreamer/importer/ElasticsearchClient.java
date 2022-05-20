@@ -14,6 +14,7 @@ import org.elasticsearch.action.bulk.BulkItemResponse;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestClientBuilder;
@@ -26,7 +27,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.TaskScheduler;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.scheduling.support.PeriodicTrigger;
 import org.springframework.stereotype.Component;
 
@@ -39,6 +39,7 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 @Component
@@ -80,27 +81,54 @@ public class ElasticsearchClient {
     public void bulk(IndexRequest indexRequest) {
         bulkRequest.add(indexRequest);
     }
+    public void bulk(UpdateRequest updateRequest) {
+        bulkRequest.add(updateRequest);
+    }
 
     public void index(JSONObject record) {
         if (metrics == null) {
             metrics = new ElasticsearchMetrics(record.getInt("partitionId"));
         }
-        if(record.has("value")){
+        JSONObject newRecord = new JSONObject();
+        if(record.getString("valueType").equalsIgnoreCase("variable")){
             JSONObject valueObj = record.getJSONObject("value");
-            if(valueObj.has("processInstanceKey")) {
-                Long processId = valueObj.getLong("processInstanceKey");
-                logger.info("Value Obj before :" + valueObj);
-                valueObj.put("processInstanceKey", String.valueOf(processId));
-                logger.info("Value Obj After :" + valueObj);
-                record.put("value", valueObj);
+            if(valueObj.has("name")){
+                if(!valueObj.getString("name").contains("Request") && !valueObj.getString("name")
+                        .contains("Body") && !valueObj.getString("name").contains("json")){
+                    if(valueObj.getString("name").equalsIgnoreCase("amount")||
+                            valueObj.getString("name").equalsIgnoreCase("phoneNumber")){
+
+                        newRecord.put((String) valueObj.get("name"),Integer.parseInt(valueObj.getString("value")
+                                .replaceAll("^\"|\"$", "").replaceAll("[-+^]*", "")));
+                    }
+                    else if(valueObj.getString("name").equalsIgnoreCase("originDate")){
+                        Instant timestamp = Instant.ofEpochMilli(valueObj.getLong("value"));
+                        newRecord.put((String) valueObj.get("name"),timestamp);
+                    }
+                    else
+                        newRecord.put((String) valueObj.get("name"),valueObj.get("value"));
             }
+            if(!newRecord.has("processInstanceKey"))
+                newRecord.put("processInstanceKey",valueObj.getLong("processInstanceKey"));
+                newRecord.put("timestamp",record.getLong("timestamp"));
+            }
+            logger.info("New Record before insert is: "+ newRecord);
+            String version = VersionUtil.getVersionLowerCase();
+            Instant timestamp = Instant.ofEpochMilli(record.getLong("timestamp"));
+            String name = "zeebe-payments" + INDEX_DELIMITER + version + INDEX_DELIMITER +
+                    formatter.format(timestamp);
+            UpdateRequest request1 = new UpdateRequest(name, valueObj.get("processInstanceKey").toString())
+                        .doc(newRecord.toMap())
+                        .upsert(newRecord.toString() ,XContentType.JSON);
+            bulk(request1);
         }
         IndexRequest request =
                 new IndexRequest(indexFor(record), typeFor(record), idFor(record))
                         .source(record.toString(), XContentType.JSON)
                         .routing(Integer.toString(record.getInt("partitionId")));
         bulk(request);
-    }
+        }
+
 
     public synchronized int flush() {
         boolean success;
@@ -180,6 +208,12 @@ public class ElasticsearchClient {
 
         PutIndexTemplateRequest request =
                 new PutIndexTemplateRequest(templateName).source(template);
+        if(templateName.contains("zeebe-record_variable") && ! templateName.contains("document")){
+            Map<String, Object> template1 = new HashMap<>();
+            template1.put("index_patterns", Collections.singletonList("zeebe-payments" + INDEX_DELIMITER + "*"));
+            request = new PutIndexTemplateRequest("zeebe-payments").source(template1);
+
+        }
 
         return putIndexTemplate(request);
     }
