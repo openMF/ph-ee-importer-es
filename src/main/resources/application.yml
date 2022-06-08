@@ -12,3 +12,6 @@ importer:
 logging:
   level:
     ROOT: ERROR
+
+reporting:
+  enabled: true
