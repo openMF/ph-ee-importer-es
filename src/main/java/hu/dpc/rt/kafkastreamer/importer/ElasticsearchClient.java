@@ -59,6 +59,9 @@ public class ElasticsearchClient {
     @Value("${importer.elasticsearch.index-prefix}")
     private String indexPrefix;
 
+    @Value("${reporting.enabled}")
+    private Boolean reportingEnabled;
+
     @Autowired
     private TaskScheduler taskScheduler;
 
@@ -89,36 +92,36 @@ public class ElasticsearchClient {
         if (metrics == null) {
             metrics = new ElasticsearchMetrics(record.getInt("partitionId"));
         }
-        JSONObject newRecord = new JSONObject();
-        if(record.getString("valueType").equalsIgnoreCase("variable")){
-            JSONObject valueObj = record.getJSONObject("value");
-            if(valueObj.has("name")){
-                if(!valueObj.getString("name").contains("Request") && !valueObj.getString("name")
-                        .contains("Body") && !valueObj.getString("name").contains("json")){
-                    if(valueObj.getString("name").equalsIgnoreCase("amount")){
-                        newRecord.put((String) valueObj.get("name"),Integer.parseInt(valueObj.getString("value")));
+        if(reportingEnabled) {
+            JSONObject newRecord = new JSONObject();
+            if (record.getString("valueType").equalsIgnoreCase("variable")) {
+                JSONObject valueObj = record.getJSONObject("value");
+                if (valueObj.has("name")) {
+                    if (!valueObj.getString("name").contains("Request") && !valueObj.getString("name")
+                            .contains("Body") && !valueObj.getString("name").contains("json")) {
+                        if (valueObj.getString("name").equalsIgnoreCase("amount")) {
+                            newRecord.put((String) valueObj.get("name"), Integer.parseInt(valueObj.getString("value")));
+                        } else if (valueObj.getString("name").equalsIgnoreCase("originDate")) {
+                            Instant timestamp = Instant.ofEpochMilli(valueObj.getLong("value"));
+                            newRecord.put((String) valueObj.get("name"), timestamp);
+                        } else
+                            newRecord.put((String) valueObj.get("name"), valueObj.get("value"));
                     }
-                    else if(valueObj.getString("name").equalsIgnoreCase("originDate")){
-                        Instant timestamp = Instant.ofEpochMilli(valueObj.getLong("value"));
-                        newRecord.put((String) valueObj.get("name"),timestamp);
-                    }
-                    else
-                        newRecord.put((String) valueObj.get("name"),valueObj.get("value"));
-            }
-            if(!newRecord.has("processInstanceKey"))
-                newRecord.put("processInstanceKey",valueObj.getLong("processInstanceKey"));
-                Instant timestamp = Instant.ofEpochMilli(record.getLong("value"));
-                newRecord.put("timestamp",timestamp);
-            }
-            logger.info("New Record before insert is: "+ newRecord);
-            String version = VersionUtil.getVersionLowerCase();
-            Instant timestamp = Instant.ofEpochMilli(record.getLong("timestamp"));
-            String name = "zeebe-payments" + INDEX_DELIMITER + version + INDEX_DELIMITER +
-                    formatter.format(timestamp);
-            UpdateRequest request1 = new UpdateRequest(name, valueObj.get("processInstanceKey").toString())
+                    if (!newRecord.has("processInstanceKey"))
+                        newRecord.put("processInstanceKey", valueObj.getLong("processInstanceKey"));
+                    Instant timestamp = Instant.ofEpochMilli(record.getLong("timestamp"));
+                    newRecord.put("timestamp", timestamp);
+                }
+                logger.info("New Record before insert is: " + newRecord);
+                String version = VersionUtil.getVersionLowerCase();
+                Instant timestamp = Instant.ofEpochMilli(record.getLong("timestamp"));
+                String name = "zeebe-payments" + INDEX_DELIMITER + version + INDEX_DELIMITER +
+                        formatter.format(timestamp);
+                UpdateRequest request1 = new UpdateRequest(name, valueObj.get("processInstanceKey").toString())
                         .doc(newRecord.toMap())
-                        .upsert(newRecord.toString() ,XContentType.JSON);
-            bulk(request1);
+                        .upsert(newRecord.toString(), XContentType.JSON);
+                bulk(request1);
+            }
         }
         IndexRequest request =
                 new IndexRequest(indexFor(record), typeFor(record), idFor(record))
@@ -204,15 +207,16 @@ public class ElasticsearchClient {
         // update alias in template in case it was changed in configuration
         template.put("aliases", Collections.singletonMap(aliasName, Collections.EMPTY_MAP));
 
-
-        if(templateName.equals("zeebe-record")){
-            Map<String, Object> settings = (Map<String, Object>) template.get("settings");
-            Map<String, Object> templateToPut = new HashMap<>();
-            templateToPut.put("settings",settings);
-            templateToPut.put("index_patterns", Collections.singletonList("zeebe-payments" + INDEX_DELIMITER + "*"));
-            //template1.put("template",)
-            PutIndexTemplateRequest  request = new PutIndexTemplateRequest("zeebe-payments").source(templateToPut);
-            putIndexTemplate(request);
+        if(reportingEnabled) {
+            if (templateName.equals("zeebe-record")) {
+                Map<String, Object> settings = (Map<String, Object>) template.get("settings");
+                Map<String, Object> templateToPut = new HashMap<>();
+                templateToPut.put("settings", settings);
+                templateToPut.put("index_patterns", Collections.singletonList("zeebe-payments" + INDEX_DELIMITER + "*"));
+                //template1.put("template",)
+                PutIndexTemplateRequest request = new PutIndexTemplateRequest("zeebe-payments").source(templateToPut);
+                putIndexTemplate(request);
+            }
         }
         PutIndexTemplateRequest request =
                 new PutIndexTemplateRequest(templateName).source(template);
