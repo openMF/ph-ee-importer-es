@@ -100,15 +100,19 @@ public class ElasticsearchClient {
                     if (!valueObj.getString("name").contains("Request") && !valueObj.getString("name")
                             .contains("Body") && !valueObj.getString("name").contains("json")) {
                         if (valueObj.getString("name").equalsIgnoreCase("amount")) {
-                            newRecord.put((String) valueObj.get("name"), Integer.parseInt(valueObj.getString("value")));
+                            newRecord.put((String) valueObj.get("name"),
+                                    Double.parseDouble(valueObj.getString("value").replaceAll("\"",
+                                            "")));
                         } else if (valueObj.getString("name").equalsIgnoreCase("originDate")) {
                             Instant timestamp = Instant.ofEpochMilli(valueObj.getLong("value"));
                             newRecord.put((String) valueObj.get("name"), timestamp);
                         } else
-                            newRecord.put((String) valueObj.get("name"), valueObj.get("value"));
+                            newRecord.put((String) valueObj.get("name"), valueObj.get("value").toString()
+                                    .replaceAll("\"", ""));
                     }
                     if (!newRecord.has("processInstanceKey"))
-                        newRecord.put("processInstanceKey", valueObj.getLong("processInstanceKey"));
+                        newRecord.put("processInstanceKey",
+                                String.valueOf(valueObj.getLong("processInstanceKey")));
                     Instant timestamp = Instant.ofEpochMilli(record.getLong("timestamp"));
                     newRecord.put("timestamp", timestamp);
                 }
@@ -117,10 +121,20 @@ public class ElasticsearchClient {
                 Instant timestamp = Instant.ofEpochMilli(record.getLong("timestamp"));
                 String name = "zeebe-payments" + INDEX_DELIMITER + version + INDEX_DELIMITER +
                         formatter.format(timestamp);
-                UpdateRequest request1 = new UpdateRequest(name, valueObj.get("processInstanceKey").toString())
-                        .doc(newRecord.toMap())
-                        .upsert(newRecord.toString(), XContentType.JSON);
-                bulk(request1);
+                if (!newRecord.has("initiator") || !newRecord.has("isNotificationsFailureEnabled") ||
+                        !newRecord.has("isNotificationsSuccessEnabled") || !newRecord.has("mpesaTransactionId")
+                        || !newRecord.has("partyLookupFailed") || !newRecord.has("tenantId") ||
+                        !newRecord.has("timer") || !newRecord.has("transactionId") ||
+                        !newRecord.has("transferCreateFailed") || !newRecord.has("getTransactionStatusHttpCode")
+                        || !newRecord.has("getTransactionStatusHttpCode") || !newRecord.has("errorCode") ||
+                        !newRecord.has("getTransactionStatusResponse") || !newRecord.has("isCallbackReceived")
+                        || !newRecord.has("transferResponse-CREATE")
+                ) {
+                    UpdateRequest request1 = new UpdateRequest(name, valueObj.get("processInstanceKey").toString())
+                            .doc(newRecord.toMap())
+                            .upsert(newRecord.toString(), XContentType.JSON);
+                    bulk(request1);
+                }
             }
         }
         IndexRequest request =
@@ -209,12 +223,22 @@ public class ElasticsearchClient {
 
         if(reportingEnabled) {
             if (templateName.equals("zeebe-record")) {
-                Map<String, Object> settings = (Map<String, Object>) template.get("settings");
-                Map<String, Object> templateToPut = new HashMap<>();
-                templateToPut.put("settings", settings);
-                templateToPut.put("index_patterns", Collections.singletonList("zeebe-payments" + INDEX_DELIMITER + "*"));
-                //template1.put("template",)
-                PutIndexTemplateRequest request = new PutIndexTemplateRequest("zeebe-payments").source(templateToPut);
+                Map<String, Object> template1;
+                try (InputStream inputStream1 =
+                             KafkaElasticImportApplication.class.getResourceAsStream("/zeebe-payments.json")) {
+                    if (inputStream1 != null) {
+                        template1 = XContentHelper.convertToMap(XContentType.JSON.xContent(), inputStream1, true);
+                    } else {
+                        throw new ElasticsearchExporterException(
+                                "Failed to find index template in classpath " + filename);
+                    }
+                } catch (IOException e) {
+                    throw new ElasticsearchExporterException(
+                            "Failed to load index template from classpath " + filename, e);
+                }
+                template1.put("index_patterns", Collections.singletonList("zeebe-payments" + INDEX_DELIMITER + "*"));
+                template1.put("aliases", Collections.singletonMap("zeebe-payments", Collections.EMPTY_MAP));
+                PutIndexTemplateRequest request = new PutIndexTemplateRequest("zeebe-payments").source(template1);
                 putIndexTemplate(request);
             }
         }

@@ -39,41 +39,14 @@ public class ElasticsearchTemplateSetup {
         if (indexConfiguration.createTemplate) {
             createRootIndexTemplate();
 
-            if (indexConfiguration.deployment) {
-                createValueIndexTemplate(ValueType.DEPLOYMENT);
-            }
-            if (indexConfiguration.error) {
-                createValueIndexTemplate(ValueType.ERROR);
-            }
             if (indexConfiguration.incident) {
                 createValueIndexTemplate(ValueType.INCIDENT);
-            }
-            if (indexConfiguration.job) {
-                createValueIndexTemplate(ValueType.JOB);
-            }
-            if (indexConfiguration.jobBatch) {
-                createValueIndexTemplate(ValueType.JOB_BATCH);
-            }
-            if (indexConfiguration.message) {
-                createValueIndexTemplate(ValueType.MESSAGE);
-            }
-            if (indexConfiguration.messageSubscription) {
-                createValueIndexTemplate(ValueType.MESSAGE_SUBSCRIPTION);
             }
             if (indexConfiguration.variable) {
                 createValueIndexTemplate(ValueType.VARIABLE);
             }
-            if (indexConfiguration.variableDocument) {
-                createValueIndexTemplate(ValueType.VARIABLE_DOCUMENT);
-            }
             if (indexConfiguration.workflowInstance) {
                 createValueIndexTemplate(ValueType.WORKFLOW_INSTANCE);
-            }
-            if (indexConfiguration.workflowInstanceCreation) {
-                createValueIndexTemplate(ValueType.WORKFLOW_INSTANCE_CREATION);
-            }
-            if (indexConfiguration.workflowInstanceSubscription) {
-                createValueIndexTemplate(ValueType.WORKFLOW_INSTANCE_SUBSCRIPTION);
             }
         }
     }
