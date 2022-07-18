@@ -82,9 +82,11 @@ public class ElasticsearchClient {
     }
 
     public void bulk(IndexRequest indexRequest) {
+        logger.info("Calling bulk request for insert");
         bulkRequest.add(indexRequest);
     }
     public void bulk(UpdateRequest updateRequest) {
+        logger.info("Calling bulk request for upsert");
         bulkRequest.add(updateRequest);
     }
 
@@ -92,50 +94,9 @@ public class ElasticsearchClient {
         if (metrics == null) {
             metrics = new ElasticsearchMetrics(record.getInt("partitionId"));
         }
+        logger.info("Getting index method called with record "+ record.toString());
         if(reportingEnabled) {
-            JSONObject newRecord = new JSONObject();
-            if (record.getString("valueType").equalsIgnoreCase("variable")) {
-                JSONObject valueObj = record.getJSONObject("value");
-                if (valueObj.has("name")) {
-                    if (!valueObj.getString("name").contains("Request") && !valueObj.getString("name")
-                            .contains("Body") && !valueObj.getString("name").contains("json")) {
-                        if (valueObj.getString("name").equalsIgnoreCase("amount")) {
-                            newRecord.put((String) valueObj.get("name"),
-                                    Double.parseDouble(valueObj.getString("value").replaceAll("\"",
-                                            "")));
-                        } else if (valueObj.getString("name").equalsIgnoreCase("originDate")) {
-                            Instant timestamp = Instant.ofEpochMilli(valueObj.getLong("value"));
-                            newRecord.put((String) valueObj.get("name"), timestamp);
-                        } else
-                            newRecord.put((String) valueObj.get("name"), valueObj.get("value").toString()
-                                    .replaceAll("\"", ""));
-                    }
-                    if (!newRecord.has("processInstanceKey"))
-                        newRecord.put("processInstanceKey",
-                                String.valueOf(valueObj.getLong("processInstanceKey")));
-                    Instant timestamp = Instant.ofEpochMilli(record.getLong("timestamp"));
-                    newRecord.put("timestamp", timestamp);
-                }
-                logger.info("New Record before insert is: " + newRecord);
-                String version = VersionUtil.getVersionLowerCase();
-                Instant timestamp = Instant.ofEpochMilli(record.getLong("timestamp"));
-                String name = "zeebe-payments" + INDEX_DELIMITER + version + INDEX_DELIMITER +
-                        formatter.format(timestamp);
-                if (!newRecord.has("initiator") || !newRecord.has("isNotificationsFailureEnabled") ||
-                        !newRecord.has("isNotificationsSuccessEnabled") || !newRecord.has("mpesaTransactionId")
-                        || !newRecord.has("partyLookupFailed") || !newRecord.has("tenantId") ||
-                        !newRecord.has("timer") || !newRecord.has("transactionId") ||
-                        !newRecord.has("transferCreateFailed") || !newRecord.has("getTransactionStatusHttpCode")
-                        || !newRecord.has("getTransactionStatusHttpCode") || !newRecord.has("errorCode") ||
-                        !newRecord.has("getTransactionStatusResponse") || !newRecord.has("isCallbackReceived")
-                        || !newRecord.has("transferResponse-CREATE")
-                ) {
-                    UpdateRequest request1 = new UpdateRequest(name, valueObj.get("processInstanceKey").toString())
-                            .doc(newRecord.toMap())
-                            .upsert(newRecord.toString(), XContentType.JSON);
-                    bulk(request1);
-                }
-            }
+           upsertToReportingIndex(record);
         }
         IndexRequest request =
                 new IndexRequest(indexFor(record), typeFor(record), idFor(record))
@@ -144,7 +105,51 @@ public class ElasticsearchClient {
         bulk(request);
         }
 
-
+    public void upsertToReportingIndex(JSONObject record){
+        JSONObject newRecord = new JSONObject();
+        if (record.getString("valueType").equalsIgnoreCase("variable")) {
+            JSONObject valueObj = record.getJSONObject("value");
+            if (valueObj.has("name")) {
+                if (!valueObj.getString("name").contains("Request") && !valueObj.getString("name")
+                        .contains("Body") && !valueObj.getString("name").contains("json")) {
+                    if (valueObj.getString("name").equalsIgnoreCase("amount")) {
+                        newRecord.put((String) valueObj.get("name"),
+                                Double.parseDouble(valueObj.getString("value").replaceAll("\"",
+                                        "")));
+                    } else if (valueObj.getString("name").equalsIgnoreCase("originDate")) {
+                        Instant timestamp = Instant.ofEpochMilli(valueObj.getLong("value"));
+                        newRecord.put((String) valueObj.get("name"), timestamp);
+                    } else
+                        newRecord.put((String) valueObj.get("name"), valueObj.get("value").toString()
+                                .replaceAll("\"", ""));
+                }
+                if (!newRecord.has("processInstanceKey"))
+                    newRecord.put("processInstanceKey",
+                            String.valueOf(valueObj.getLong("processInstanceKey")));
+                Instant timestamp = Instant.ofEpochMilli(record.getLong("timestamp"));
+                newRecord.put("timestamp", timestamp);
+            }
+            logger.info("New Record before insert is: " + newRecord);
+            String version = VersionUtil.getVersionLowerCase();
+            Instant timestamp = Instant.ofEpochMilli(record.getLong("timestamp"));
+            String name = "zeebe-payments" + INDEX_DELIMITER + version + INDEX_DELIMITER +
+                    formatter.format(timestamp);
+            if (!newRecord.has("initiator") || !newRecord.has("isNotificationsFailureEnabled") ||
+                    !newRecord.has("isNotificationsSuccessEnabled") || !newRecord.has("mpesaTransactionId")
+                    || !newRecord.has("partyLookupFailed") || !newRecord.has("tenantId") ||
+                    !newRecord.has("timer") || !newRecord.has("transactionId") ||
+                    !newRecord.has("transferCreateFailed") || !newRecord.has("getTransactionStatusHttpCode")
+                    || !newRecord.has("getTransactionStatusHttpCode") || !newRecord.has("errorCode") ||
+                    !newRecord.has("getTransactionStatusResponse") || !newRecord.has("isCallbackReceived")
+                    || !newRecord.has("transferResponse-CREATE")
+            ) {
+                UpdateRequest request1 = new UpdateRequest(name, valueObj.get("processInstanceKey").toString())
+                        .doc(newRecord.toMap())
+                        .upsert(newRecord.toString(), XContentType.JSON);
+                bulk(request1);
+            }
+        }
+    }
     public synchronized int flush() {
         boolean success;
         int bulkSize = bulkRequest.numberOfActions();
