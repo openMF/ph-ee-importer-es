@@ -96,7 +96,7 @@ public class ElasticsearchClient {
         }
         logger.info("Getting index method called with record "+ record.toString());
         if(reportingEnabled) {
-           createNewReportingIndex(record);
+           upsertToReportingIndex(record);
         }
         IndexRequest request =
                 new IndexRequest(indexFor(record), typeFor(record), idFor(record))
@@ -105,7 +105,7 @@ public class ElasticsearchClient {
         bulk(request);
         }
 
-    public void createNewReportingIndex(JSONObject record){
+    public void upsertToReportingIndex(JSONObject record){
         JSONObject newRecord = new JSONObject();
         if (record.getString("valueType").equalsIgnoreCase("variable")) {
             JSONObject valueObj = record.getJSONObject("value");
