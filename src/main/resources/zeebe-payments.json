@@ -16,76 +16,113 @@
     "zeebe-payments": {}
   },
   "mappings": {
-    "dynamic_templates": [
-      {
-        "strings": {
-          "match_mapping_type": "string",
-          "mapping": {
-            "type": "text"
+    "_doc": {
+      "dynamic_templates": [
+        {
+          "strings": {
+            "match_mapping_type": "string",
+            "path_unmatch": "request.*",
+            "match": "*",
+            "mapping": {
+              "type": "text"
+            }
           }
         }
-      }
-    ],
-    "properties": {
-      "accountId": {
-        "type": "text"
-      },
-      "amount": {
-        "type": "number"
-      },
-      "initiator": {
-        "type": "text"
-      },
-      "initiatorType": {
-        "type": "text"
-      },
-      "isNotificationsFailureEnabled": {
-        "type": "text"
-      },
-      "isNotificationsSuccessEnabled": {
-        "type": "text"
-      },
-      "mpesaTransactionId": {
-        "type": "text"
-      },
-      "mpesaTransactionStatusRetryCount": {
-        "type": "text"
-      },
-      "originDate": {
-        "type": "date"
-      },
-      "partyLookupFailed": {
-        "type": "text"
-      },
-      "phoneNumber": {
-        "type": "text"
-      },
-      "processInstanceKey": {
-        "type": "text"
-      },
-      "scenario": {
-        "type": "text"
-      },
-      "tenantId": {
-        "type": "text"
-      },
-      "timer": {
-        "type": "text"
-      },
-      "timestamp": {
-        "type": "date"
-      },
-      "transactionFailed": {
-        "type": "text"
-      },
-      "transactionId": {
-        "type": "text"
-      },
-      "transferCreateFailed": {
-        "type": "text"
-      },
-      "transferSettlementFailed": {
-        "type": "text"
+      ],
+      "properties": {
+        "accountId": {
+          "type": "text"
+        },
+        "amount": {
+          "type": "number"
+        },
+        "errorCode": {
+          "type": "text",
+          "fields": {
+            "keyword": {
+              "type": "keyword",
+              "ignore_above": 256
+            }
+          }
+        },
+        "errorDescription": {
+          "type": "text",
+          "fields": {
+            "keyword": {
+              "type": "keyword",
+              "ignore_above": 256
+            }
+          }
+        },
+        "initiator": {
+          "type": "text"
+        },
+        "initiatorType": {
+          "type": "text"
+        },
+        "isNotificationsFailureEnabled": {
+          "type": "text"
+        },
+        "isNotificationsSuccessEnabled": {
+          "type": "text"
+        },
+        "mpesaTransactionId": {
+          "type": "text"
+        },
+        "mpesaTransactionStatusRetryCount": {
+          "type": "text"
+        },
+        "originDate": {
+          "type": "date"
+        },
+        "partyLookupFailed": {
+          "type": "text"
+        },
+        "phoneNumber": {
+          "type": "text"
+        },
+        "processDefinitionKey": {
+          "type": "text",
+          "fields": {
+            "keyword": {
+              "type": "keyword",
+              "ignore_above": 256
+            }
+          }
+        },
+        "processInstanceKey": {
+          "type": "text",
+          "fields": {
+            "keyword": {
+              "type": "keyword",
+              "ignore_above": 256
+            }
+          }
+        },
+        "scenario": {
+          "type": "text"
+        },
+        "tenantId": {
+          "type": "text"
+        },
+        "timer": {
+          "type": "text"
+        },
+        "timestamp": {
+          "type": "date"
+        },
+        "transactionFailed": {
+          "type": "text"
+        },
+        "transactionId": {
+          "type": "text"
+        },
+        "transferCreateFailed": {
+          "type": "text"
+        },
+        "transferSettlementFailed": {
+          "type": "text"
+        }
       }
     }
   }
