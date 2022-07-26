@@ -34,7 +34,7 @@
           "type": "text"
         },
         "amount": {
-          "type": "number"
+          "type": "float"
         },
         "errorCode": {
           "type": "text",

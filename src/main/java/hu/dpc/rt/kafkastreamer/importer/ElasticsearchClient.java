@@ -94,15 +94,16 @@ public class ElasticsearchClient {
         if (metrics == null) {
             metrics = new ElasticsearchMetrics(record.getInt("partitionId"));
         }
-        logger.info("Getting index method called with record "+ record.toString());
-        if(reportingEnabled) {
-           upsertToReportingIndex(record);
+        logger.info("Getting index method called with record value type " + record.getString("valueType"));
+        if (reportingEnabled) {
+            upsertToReportingIndex(record);
         }
-        IndexRequest request =
-                new IndexRequest(indexFor(record), typeFor(record), idFor(record))
-                        .source(record.toString(), XContentType.JSON)
-                        .routing(Integer.toString(record.getInt("partitionId")));
-        bulk(request);
+            logger.info("Pushing index for " + indexFor(record));
+            IndexRequest request =
+                    new IndexRequest(indexFor(record), typeFor(record), idFor(record))
+                            .source(record.toString(), XContentType.JSON)
+                            .routing(Integer.toString(record.getInt("partitionId")));
+            bulk(request);
         }
 
     public void upsertToReportingIndex(JSONObject record){
@@ -208,7 +209,7 @@ public class ElasticsearchClient {
             String templateName, String aliasName, String filename) {
         Map<String, Object> template;
         try (InputStream inputStream =
-                     ElasticsearchExporter.class.getResourceAsStream(filename)) {
+                     KafkaElasticImportApplication.class.getResourceAsStream(filename)) {
             if (inputStream != null) {
                 template = XContentHelper.convertToMap(XContentType.JSON.xContent(), inputStream, true);
             } else {
@@ -332,6 +333,7 @@ public class ElasticsearchClient {
 
     private String indexPrefixForValueType(ValueType valueType) {
         String version = VersionUtil.getVersionLowerCase();
+
         return indexPrefix
                 + INDEX_DELIMITER
                 + valueTypeToString(valueType)
