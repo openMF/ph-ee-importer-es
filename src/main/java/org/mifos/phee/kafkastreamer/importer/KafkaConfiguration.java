@@ -1,4 +1,4 @@
-package hu.dpc.rt.kafkastreamer.importer;
+package org.mifos.phee.kafkastreamer.importer;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;

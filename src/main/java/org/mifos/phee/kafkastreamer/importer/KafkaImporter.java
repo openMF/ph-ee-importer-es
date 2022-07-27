@@ -1,4 +1,4 @@
-package hu.dpc.rt.kafkastreamer.importer;
+package org.mifos.phee.kafkastreamer.importer;
 
 import org.json.JSONObject;
 import org.slf4j.Logger;
