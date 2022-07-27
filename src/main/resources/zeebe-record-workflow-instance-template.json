@@ -22,10 +22,10 @@
             "version": {
               "type": "integer"
             },
-            "workflowKey": {
+            "processDefinitionKey": {
               "type": "long"
             },
-            "workflowInstanceKey": {
+            "processInstanceKey": {
               "type": "long"
             },
             "elementId": {
@@ -37,7 +37,7 @@
             "bpmnElementType": {
               "type": "keyword"
             },
-            "parentWorkflowInstanceKey": {
+            "parentProcessInstanceKey": {
               "type": "long"
             },
             "parentElementInstanceKey": {

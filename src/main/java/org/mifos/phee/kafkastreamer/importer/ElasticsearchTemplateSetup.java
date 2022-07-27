@@ -5,10 +5,9 @@
  * Licensed under the Zeebe Community License 1.0. You may not use this file
  * except in compliance with the Zeebe Community License 1.0.
  */
-package hu.dpc.rt.kafkastreamer.importer;
+package org.mifos.phee.kafkastreamer.importer;
 
 import io.zeebe.exporter.ElasticsearchExporterConfiguration.IndexConfiguration;
-import io.zeebe.protocol.record.ValueType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,13 +39,13 @@ public class ElasticsearchTemplateSetup {
             createRootIndexTemplate();
 
             if (indexConfiguration.incident) {
-                createValueIndexTemplate(ValueType.INCIDENT);
+                createValueIndexTemplate(ExtendedValueType.INCIDENT);
             }
             if (indexConfiguration.variable) {
-                createValueIndexTemplate(ValueType.VARIABLE);
+                createValueIndexTemplate(ExtendedValueType.VARIABLE);
             }
             if (indexConfiguration.workflowInstance) {
-                createValueIndexTemplate(ValueType.WORKFLOW_INSTANCE);
+                createValueIndexTemplate(ExtendedValueType.WORKFLOW_INSTANCE);
             }
         }
     }
@@ -60,9 +59,9 @@ public class ElasticsearchTemplateSetup {
         }
     }
 
-    private void createValueIndexTemplate(final ValueType valueType) {
-        if (!client.putIndexTemplate(valueType)) {
-            logger.warn("Put index template for value type {} was not acknowledged", valueType);
+    private void createValueIndexTemplate(final ExtendedValueType extendedValueType) {
+        if (!client.putIndexTemplate(extendedValueType)) {
+            logger.warn("Put index template for value type {} was not acknowledged", extendedValueType);
         }
     }
 }
