@@ -86,6 +86,9 @@ public class ElasticsearchClient {
     @Autowired
     private TaskScheduler taskScheduler;
 
+    @Autowired
+    private PaymentsIndexConfiguration paymentsIndexConfiguration;
+
     private RestHighLevelClient client;
     private ElasticsearchMetrics metrics;
 
@@ -132,8 +135,7 @@ public class ElasticsearchClient {
         if (record.getString("valueType").equalsIgnoreCase("variable")) {
             JSONObject valueObj = record.getJSONObject("value");
             if (valueObj.has("name")) {
-                if (!valueObj.getString("name").contains("Request") && !valueObj.getString("name")
-                        .contains("Body") && !valueObj.getString("name").contains("json")) {
+                if(paymentsIndexConfiguration.getVariables().contains(valueObj.getString("name"))) {
                     if (valueObj.getString("name").equalsIgnoreCase("amount")) {
                         newRecord.put((String) valueObj.get("name"),
                                 Double.parseDouble(valueObj.getString("value").replaceAll("\"",
@@ -141,9 +143,10 @@ public class ElasticsearchClient {
                     } else if (valueObj.getString("name").equalsIgnoreCase("originDate")) {
                         Instant timestamp = Instant.ofEpochMilli(valueObj.getLong("value"));
                         newRecord.put((String) valueObj.get("name"), timestamp);
-                    } else
+                    } else {
                         newRecord.put((String) valueObj.get("name"), valueObj.get("value").toString()
                                 .replaceAll("\"", ""));
+                    }
                 }
                 if (!newRecord.has("processInstanceKey"))
                     newRecord.put("processInstanceKey",
