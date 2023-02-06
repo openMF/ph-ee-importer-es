@@ -36,6 +36,19 @@
         "amount": {
           "type": "float"
         },
+        "ams": {
+          "type": "string"
+
+        },
+        "clientCorrelationId": {
+          "type": "text",
+          "fields": {
+            "keyword": {
+              "type": "keyword",
+              "ignore_above": 256
+            }
+          }
+        },
         "errorCode": {
           "type": "text",
           "fields": {
