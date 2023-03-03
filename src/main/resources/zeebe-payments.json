@@ -37,7 +37,7 @@
           "type": "float"
         },
         "ams": {
-          "type": "string"
+          "type": "text"
 
         },
         "clientCorrelationId": {
