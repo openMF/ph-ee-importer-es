@@ -49,6 +49,12 @@
             }
           }
         },
+        "currency": {
+          "type": "text"
+        },
+        "customData": {
+          "type": "text"
+        },
         "errorCode": {
           "type": "text",
           "fields": {
@@ -59,6 +65,15 @@
           }
         },
         "errorDescription": {
+          "type": "text",
+          "fields": {
+            "keyword": {
+              "type": "keyword",
+              "ignore_above": 256
+            }
+          }
+        },
+        "errorInformation": {
           "type": "text",
           "fields": {
             "keyword": {
