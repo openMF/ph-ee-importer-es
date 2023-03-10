@@ -5,7 +5,7 @@
 plugins {
     id 'java'
     id 'maven-publish'
-    id 'org.springframework.boot' version '2.1.9.RELEASE'
+    id 'org.springframework.boot' version '3.0.4'
     id 'eclipse'
 }
 
@@ -21,18 +21,18 @@ repositories {
 }
 
 dependencies {
-    implementation 'io.zeebe:zeebe-elasticsearch-exporter:0.24.6'
-    implementation 'org.elasticsearch.client:elasticsearch-rest-high-level-client:7.6.0'
-    implementation 'org.apache.camel.springboot:camel-spring-boot-starter:3.4.0'
-    implementation 'org.apache.kafka:kafka-streams:2.3.1'
-    implementation 'org.springframework.kafka:spring-kafka:2.3.5.RELEASE'
-    implementation 'org.json:json:20190722'
-    testImplementation 'junit:junit:4.13'
+    implementation 'io.zeebe:zeebe-elasticsearch-exporter:0.26.6'
+    implementation 'org.elasticsearch.client:elasticsearch-rest-high-level-client:7.17.9'
+    implementation 'org.apache.camel.springboot:camel-spring-boot-starter:3.20.2'
+    implementation 'org.apache.kafka:kafka-streams:3.4.0'
+    implementation 'org.springframework.kafka:spring-kafka:3.0.4'
+    implementation 'org.json:json:20230227'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.2'
 }
 
 group = 'org.mifos'
 version = '1.0.0-SNAPSHOT'
-sourceCompatibility = '1.8'
+sourceCompatibility = '17'
 
 publishing {
     publications {
