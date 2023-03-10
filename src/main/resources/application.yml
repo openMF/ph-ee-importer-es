@@ -31,8 +31,11 @@ reporting:
     accountId: true
     ams: true
     clientCorrelationId : true
+    currency: true
+    customData: true
     errorCode: false
     errorDescription: true
+    errorInformation: true
     externalId: true
     initiator: false
     initiatorType: false
