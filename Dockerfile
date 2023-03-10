@@ -1,4 +1,5 @@
 FROM openjdk:17-bullseye
 WORKDIR /app
-COPY target/*.jar ./
+COPY build/libs/*.jar ./
 CMD java -jar *.jar
+
