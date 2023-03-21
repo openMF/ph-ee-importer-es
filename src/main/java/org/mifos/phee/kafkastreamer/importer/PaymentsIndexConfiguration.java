@@ -86,6 +86,16 @@ public class PaymentsIndexConfiguration {
 
     @Value("${reporting.fields.transferResponseCREATE}")
     private Boolean transferResponseCREATEVal;
+    @Value("${reporting.fields.currency}")
+    private Boolean currencyVal;
+    @Value("${reporting.fields.errorInformation}")
+    private Boolean errorInformationVal;
+    @Value("${reporting.fields.customData.enabled}")
+    private Boolean customDataVal;
+    @Value("${reporting.fields.customData.enabled.reconciled}")
+    private Boolean reconciledVal;
+    @Value("${reporting.fields.customData.enabled.confirmationReceived}")
+    private Boolean confirmationReceivedVal;
 
     public PaymentsIndexConfiguration(){}
 
@@ -115,6 +125,12 @@ public class PaymentsIndexConfiguration {
         Boolean transferCreateFailed = transferCreateFailedVal;
         Boolean transferSettlementFailed = transferSettlementFailedVal;
         Boolean transferResponseCREATE = transferResponseCREATEVal;
+        Boolean currency = currencyVal;
+        Boolean errorInformation = errorInformationVal;
+        Boolean customData = customDataVal;
+        Boolean reconciled = reconciledVal;
+        Boolean confirmationReceived = confirmationReceivedVal;
+
             if (amount) {
                 variables.add("amount");
             }
@@ -190,8 +206,20 @@ public class PaymentsIndexConfiguration {
             if (transferResponseCREATE) {
                 variables.add("transferResponse-CREATE");
             }
-
-
+            if(currency){
+                variables.add("currency");
+            }
+            if(errorInformation){
+                variables.add("errorInformation");
+            }
+            if(customData){
+                if(reconciled){
+                    variables.add("reconciled");
+                }
+                if(confirmationReceived){
+                    variables.add("confirmationReceived");
+                }
+            }
         return variables;
     }
 

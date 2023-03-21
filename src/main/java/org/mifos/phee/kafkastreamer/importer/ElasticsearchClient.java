@@ -27,6 +27,7 @@ import org.elasticsearch.client.RestClientBuilder;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.xcontent.XContentHelper;
 import org.elasticsearch.common.xcontent.XContentType;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,6 +49,7 @@ import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Map;
 
@@ -109,6 +111,7 @@ public class ElasticsearchClient {
         logger.info("Calling bulk request for insert");
         bulkRequest.add(indexRequest);
     }
+
     public void bulk(UpdateRequest updateRequest) {
         logger.info("Calling bulk request for upsert");
         bulkRequest.add(updateRequest);
@@ -122,20 +125,20 @@ public class ElasticsearchClient {
         if (reportingEnabled) {
             upsertToReportingIndex(record);
         }
-            logger.info("Pushing index for " + indexFor(record));
-            IndexRequest request =
-                    new IndexRequest(indexFor(record), typeFor(record), idFor(record))
-                            .source(record.toString(), XContentType.JSON)
-                            .routing(Integer.toString(record.getInt("partitionId")));
-            bulk(request);
-        }
+        logger.info("Pushing index for " + indexFor(record));
+        IndexRequest request =
+                new IndexRequest(indexFor(record), typeFor(record), idFor(record))
+                        .source(record.toString(), XContentType.JSON)
+                        .routing(Integer.toString(record.getInt("partitionId")));
+        bulk(request);
+    }
 
-    public void upsertToReportingIndex(JSONObject record){
+    public void upsertToReportingIndex(JSONObject record) {
         JSONObject newRecord = new JSONObject();
         if (record.getString("valueType").equalsIgnoreCase("variable")) {
             JSONObject valueObj = record.getJSONObject("value");
-            if (valueObj.has("name")) {
-                if(paymentsIndexConfiguration.getVariables().contains(valueObj.getString("name"))) {
+            if (valueObj.has("name")) { // Checking for variable events
+                if (paymentsIndexConfiguration.getVariables().contains(valueObj.getString("name"))) {
                     if (valueObj.getString("name").equalsIgnoreCase("amount")) {
                         newRecord.put((String) valueObj.get("name"),
                                 Double.parseDouble(valueObj.getString("value").replaceAll("\"",
@@ -143,38 +146,40 @@ public class ElasticsearchClient {
                     } else if (valueObj.getString("name").equalsIgnoreCase("originDate")) {
                         Instant timestamp = Instant.ofEpochMilli(valueObj.getLong("value"));
                         newRecord.put((String) valueObj.get("name"), timestamp);
+                    } else if (valueObj.getString("name").equalsIgnoreCase("customData")) {
+                        JSONArray customDataArray = valueObj.getJSONArray("customData");
+                        for (int i = 0; i < customDataArray.length(); i++) {
+                            JSONObject customData = customDataArray.getJSONObject(i);
+                            newRecord.put(customData.getString("key").replaceAll("\"", ""),
+                                    customData.getString("value")
+                                            .replaceAll("\"", ""));
+                        }
                     } else {
                         newRecord.put((String) valueObj.get("name"), valueObj.get("value").toString()
                                 .replaceAll("\"", ""));
                     }
                 }
+                //This logic makes the upsert possible
                 if (!newRecord.has("processInstanceKey"))
                     newRecord.put("processInstanceKey",
                             String.valueOf(valueObj.getLong("processInstanceKey")));
                 Instant timestamp = Instant.ofEpochMilli(record.getLong("timestamp"));
                 newRecord.put("timestamp", timestamp);
+                //What if the UpdateRequest and bulk(request1) comes here?
             }
+            //Line 159 to 173 looks duplicate in terms of solving the same problem multiple times
             logger.info("New Record before insert is: " + newRecord);
             String version = VersionUtil.getVersionLowerCase();
             Instant timestamp = Instant.ofEpochMilli(record.getLong("timestamp"));
             String name = "zeebe-payments" + INDEX_DELIMITER + version + INDEX_DELIMITER +
                     formatter.format(timestamp);
-            if (!newRecord.has("initiator") || !newRecord.has("isNotificationsFailureEnabled") ||
-                    !newRecord.has("isNotificationsSuccessEnabled") || !newRecord.has("mpesaTransactionId")
-                    || !newRecord.has("partyLookupFailed") || !newRecord.has("tenantId") ||
-                    !newRecord.has("timer") || !newRecord.has("transactionId") ||
-                    !newRecord.has("transferCreateFailed") || !newRecord.has("getTransactionStatusHttpCode")
-                    || !newRecord.has("getTransactionStatusHttpCode") || !newRecord.has("errorCode") ||
-                    !newRecord.has("getTransactionStatusResponse") || !newRecord.has("isCallbackReceived")
-                    || !newRecord.has("transferResponse-CREATE")
-            ) {
-                UpdateRequest request1 = new UpdateRequest(name, valueObj.get("processInstanceKey").toString())
-                        .doc(newRecord.toMap())
-                        .upsert(newRecord.toString(), XContentType.JSON);
-                bulk(request1);
-            }
+            UpdateRequest request1 = new UpdateRequest(name, valueObj.get("processInstanceKey").toString())
+                    .doc(newRecord.toMap())
+                    .upsert(newRecord.toString(), XContentType.JSON);
+            bulk(request1);
         }
     }
+
     public synchronized int flush() {
         boolean success;
         int bulkSize = bulkRequest.numberOfActions();
@@ -251,7 +256,7 @@ public class ElasticsearchClient {
         // update alias in template in case it was changed in configuration
         template.put("aliases", Collections.singletonMap(aliasName, Collections.EMPTY_MAP));
 
-        if(reportingEnabled) {
+        if (reportingEnabled) {
             if (templateName.equals("zeebe-record")) {
                 Map<String, Object> template1;
                 try (InputStream inputStream1 =
@@ -287,10 +292,9 @@ public class ElasticsearchClient {
                     .indices()
                     .putTemplate(putIndexTemplateRequest, RequestOptions.DEFAULT)
                     .isAcknowledged();
-        }catch (ElasticsearchException exception){
+        } catch (ElasticsearchException exception) {
             throw new ElasticsearchExporterException("Failed to Connect ES", exception);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             throw new ElasticsearchExporterException("Failed to put index template", e);
         }
     }
@@ -298,7 +302,7 @@ public class ElasticsearchClient {
     private RestHighLevelClient createClient() {
         RestClientBuilder builder;
         SSLContext sslContext = null;
-        if(securityEnabled) {
+        if (securityEnabled) {
             final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
             credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(username, password));
             if (sslVerify) {
@@ -332,7 +336,7 @@ public class ElasticsearchClient {
             builder =
                     RestClient.builder(httpHost).setHttpClientConfigCallback(this::setHttpClientConfigCallback);
         }
-            return new RestHighLevelClient(builder);
+        return new RestHighLevelClient(builder);
     }
 
     private HttpAsyncClientBuilder setHttpClientConfigCallback(HttpAsyncClientBuilder builder) {
@@ -340,6 +344,7 @@ public class ElasticsearchClient {
 
         return builder;
     }
+
     private static HttpHost urlToHttpHost(String url) {
         URI uri;
         try {
@@ -383,7 +388,7 @@ public class ElasticsearchClient {
     }
 
     private static String valueTypeToString(ExtendedValueType extendedValueType) {
-        if(extendedValueType.name().equalsIgnoreCase("process_instance")){
+        if (extendedValueType.name().equalsIgnoreCase("process_instance")) {
             extendedValueType = ExtendedValueType.WORKFLOW_INSTANCE;
         }
         return extendedValueType.name().toLowerCase().replaceAll("_", "-");
