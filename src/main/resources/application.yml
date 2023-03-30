@@ -30,11 +30,10 @@ reporting:
     amount: true
     accountId: true
     ams: true
-    clientCorrelationId : true
+    clientCorrelationId: true
     currency: true
     customData:
       enabled: true
-      reconciled: true
       confirmationReceived: true
     errorCode: false
     errorDescription: true
