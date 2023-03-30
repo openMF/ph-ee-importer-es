@@ -49,7 +49,6 @@ import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Map;
 
@@ -159,15 +158,12 @@ public class ElasticsearchClient {
                                 .replaceAll("\"", ""));
                     }
                 }
-                //This logic makes the upsert possible
                 if (!newRecord.has("processInstanceKey"))
                     newRecord.put("processInstanceKey",
                             String.valueOf(valueObj.getLong("processInstanceKey")));
                 Instant timestamp = Instant.ofEpochMilli(record.getLong("timestamp"));
                 newRecord.put("timestamp", timestamp);
-                //What if the UpdateRequest and bulk(request1) comes here?
             }
-            //Line 159 to 173 looks duplicate in terms of solving the same problem multiple times
             logger.info("New Record before insert is: " + newRecord);
             String version = VersionUtil.getVersionLowerCase();
             Instant timestamp = Instant.ofEpochMilli(record.getLong("timestamp"));
