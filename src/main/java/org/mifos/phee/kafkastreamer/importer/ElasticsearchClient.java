@@ -27,7 +27,6 @@ import org.elasticsearch.client.RestClientBuilder;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.xcontent.XContentHelper;
 import org.elasticsearch.common.xcontent.XContentType;
-import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -280,7 +279,7 @@ public class ElasticsearchClient {
                     .indices()
                     .putTemplate(putIndexTemplateRequest, RequestOptions.DEFAULT)
                     .isAcknowledged();
-        } catch (ElasticsearchException exception) {
+        }catch (ElasticsearchException exception){
             throw new ElasticsearchExporterException("Failed to Connect ES", exception);
         } catch (IOException e) {
             throw new ElasticsearchExporterException("Failed to put index template", e);
@@ -290,7 +289,7 @@ public class ElasticsearchClient {
     private RestHighLevelClient createClient() {
         RestClientBuilder builder;
         SSLContext sslContext = null;
-        if (securityEnabled) {
+        if(securityEnabled) {
             final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
             credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(username, password));
             if (sslVerify) {
@@ -324,7 +323,7 @@ public class ElasticsearchClient {
             builder =
                     RestClient.builder(httpHost).setHttpClientConfigCallback(this::setHttpClientConfigCallback);
         }
-        return new RestHighLevelClient(builder);
+            return new RestHighLevelClient(builder);
     }
 
     private HttpAsyncClientBuilder setHttpClientConfigCallback(HttpAsyncClientBuilder builder) {
@@ -332,7 +331,6 @@ public class ElasticsearchClient {
 
         return builder;
     }
-
     private static HttpHost urlToHttpHost(String url) {
         URI uri;
         try {
@@ -376,7 +374,7 @@ public class ElasticsearchClient {
     }
 
     private static String valueTypeToString(ExtendedValueType extendedValueType) {
-        if (extendedValueType.name().equalsIgnoreCase("process_instance")) {
+        if(extendedValueType.name().equalsIgnoreCase("process_instance")){
             extendedValueType = ExtendedValueType.WORKFLOW_INSTANCE;
         }
         return extendedValueType.name().toLowerCase().replaceAll("_", "-");
