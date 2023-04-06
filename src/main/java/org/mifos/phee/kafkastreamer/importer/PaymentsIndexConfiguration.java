@@ -86,18 +86,27 @@ public class PaymentsIndexConfiguration {
 
     @Value("${reporting.fields.transferResponseCREATE}")
     private Boolean transferResponseCREATEVal;
+
     @Value("${reporting.fields.currency}")
     private Boolean currencyVal;
+
     @Value("${reporting.fields.errorInformation}")
     private Boolean errorInformationVal;
-    @Value("${reporting.fields.customData.enabled}")
+
+    @Value("${reporting.fields.customData}")
     private Boolean customDataVal;
-    @Value("${reporting.fields.customData.enabled.reconciled}")
-    private Boolean reconciledVal;
-    @Value("${reporting.fields.customData.enabled.confirmationReceived}")
+
+    @Value("${reporting.fields.confirmationReceived}")
     private Boolean confirmationReceivedVal;
 
-    public PaymentsIndexConfiguration(){}
+    @Value("${reporting.fields.clientCorrelationId}")
+    private Boolean clientCorrelationIdVal;
+    
+    @Value("${reporting.fields.ams}")
+    private Boolean amsVal;
+
+    public PaymentsIndexConfiguration() {
+    }
 
     public List<String> getVariables() {
         Boolean amount = amountVal;
@@ -128,100 +137,104 @@ public class PaymentsIndexConfiguration {
         Boolean currency = currencyVal;
         Boolean errorInformation = errorInformationVal;
         Boolean customData = customDataVal;
-        Boolean reconciled = reconciledVal;
         Boolean confirmationReceived = confirmationReceivedVal;
+        Boolean clientCorrelationId = clientCorrelationIdVal;
+        Boolean ams = amsVal;
 
-            if (amount) {
-                variables.add("amount");
-            }
-            if (accountId) {
-                variables.add("accountId");
-            }
-            if (errorCode) {
-                variables.add("errorCode");
-            }
-            if (errorDescription) {
-                variables.add("errorDescription");
-            }
-            if (externalId) {
-                variables.add("externalId");
-            }
-            if (initiator) {
-                variables.add("initiator");
-            }
-            if (initiatorType) {
-                variables.add("initiatorType");
-            }
-            if (isNotificationsFailureEnabled) {
-                variables.add("isNotificationsFailureEnabled");
-            }
-            if (isNotificationsSuccessEnabled) {
-                variables.add("isNotificationsSuccessEnabled");
-            }
-            if (mpesaTransactionId) {
-                variables.add("mpesaTransactionId");
-            }
-            if (mpesaTransactionStatusRetryCount) {
-                variables.add("mpesaTransactionStatusRetryCount");
-            }
-            if (originDate) {
-                variables.add("originDate");
-            }
-            if (partyLookupFailed) {
-                variables.add("partyLookupFailed");
-            }
-            if (phoneNumber) {
-                variables.add("phoneNumber");
-            }
-            if (processDefinitionKey) {
-                variables.add("processDefinitionKey");
-            }
-            if (processInstanceKey) {
-                variables.add("processInstanceKey");
-            }
-            if (scenario) {
-                variables.add("scenario");
-            }
-            if (tenantId) {
-                variables.add("tenantId");
-            }
-            if (timer) {
-                variables.add("timer");
-            }
-            if (timestamp) {
-                variables.add("timestamp");
-            }
-            if (transactionFailed) {
-                variables.add("transactionFailed");
-            }
-            if (transactionId) {
-                variables.add("transactionId");
-            }
-            if (transferCreateFailed) {
-                variables.add("transferCreateFailed");
-            }
-            if (transferSettlementFailed) {
-                variables.add("transferSettlementFailed");
-            }
-            if (transferResponseCREATE) {
-                variables.add("transferResponse-CREATE");
-            }
-            if(currency){
-                variables.add("currency");
-            }
-            if(errorInformation){
-                variables.add("errorInformation");
-            }
-            if(customData){
-                if(reconciled){
-                    variables.add("reconciled");
-                }
-                if(confirmationReceived){
-                    variables.add("confirmationReceived");
-                }
-            }
+        if (amount) {
+            variables.add("amount");
+        }
+        if (accountId) {
+            variables.add("accountId");
+        }
+        if (errorCode) {
+            variables.add("errorCode");
+        }
+        if (errorDescription) {
+            variables.add("errorDescription");
+        }
+        if (externalId) {
+            variables.add("externalId");
+        }
+        if (initiator) {
+            variables.add("initiator");
+        }
+        if (initiatorType) {
+            variables.add("initiatorType");
+        }
+        if (isNotificationsFailureEnabled) {
+            variables.add("isNotificationsFailureEnabled");
+        }
+        if (isNotificationsSuccessEnabled) {
+            variables.add("isNotificationsSuccessEnabled");
+        }
+        if (mpesaTransactionId) {
+            variables.add("mpesaTransactionId");
+        }
+        if (mpesaTransactionStatusRetryCount) {
+            variables.add("mpesaTransactionStatusRetryCount");
+        }
+        if (originDate) {
+            variables.add("originDate");
+        }
+        if (partyLookupFailed) {
+            variables.add("partyLookupFailed");
+        }
+        if (phoneNumber) {
+            variables.add("phoneNumber");
+        }
+        if (processDefinitionKey) {
+            variables.add("processDefinitionKey");
+        }
+        if (processInstanceKey) {
+            variables.add("processInstanceKey");
+        }
+        if (scenario) {
+            variables.add("scenario");
+        }
+        if (tenantId) {
+            variables.add("tenantId");
+        }
+        if (timer) {
+            variables.add("timer");
+        }
+        if (timestamp) {
+            variables.add("timestamp");
+        }
+        if (transactionFailed) {
+            variables.add("transactionFailed");
+        }
+        if (transactionId) {
+            variables.add("transactionId");
+        }
+        if (transferCreateFailed) {
+            variables.add("transferCreateFailed");
+        }
+        if (transferSettlementFailed) {
+            variables.add("transferSettlementFailed");
+        }
+        if (transferResponseCREATE) {
+            variables.add("transferResponse-CREATE");
+        }
+        if (currency) {
+            variables.add("currency");
+        }
+        if (errorInformation) {
+            variables.add("errorInformation");
+        }
+        if (customData) {
+            variables.add("customData");
+        }
+        if (confirmationReceived) {
+            variables.add("confirmationReceived");
+        }
+        if (clientCorrelationId) {
+            variables.add("clientCorrelationId");
+        }
+        if (ams) {
+            variables.add("ams");
+        }
         return variables;
     }
 
-    }
-
+}

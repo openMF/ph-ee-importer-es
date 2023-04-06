@@ -9,7 +9,6 @@ importer:
     bulk-size: 20
     index-prefix: "zeebe-record"
 
-
 elasticsearch:
   security:
     enabled: false
@@ -23,7 +22,6 @@ logging:
   pattern:
     console: "%clr(%d{dd-MM-yyyy HH:mm:ss.SSS}){faint} %clr(${LOG_LEVEL_PATTERN:-%5p}) %clr([%35.35t]){faint} %clr(%-28.28logger{28}){cyan} %clr(:){faint}%X{BUSINESS-LOG} %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}"
 
-
 reporting:
   enabled: true
   fields:
@@ -32,9 +30,8 @@ reporting:
     ams: true
     clientCorrelationId: true
     currency: true
-    customData:
-      enabled: true
-      confirmationReceived: true
+    customData: false
+    confirmationReceived: false
     errorCode: false
     errorDescription: true
     errorInformation: true
@@ -59,6 +56,3 @@ reporting:
     transferCreateFailed: false
     transferSettlementFailed: false
     transferResponseCREATE: false
-
-
-
