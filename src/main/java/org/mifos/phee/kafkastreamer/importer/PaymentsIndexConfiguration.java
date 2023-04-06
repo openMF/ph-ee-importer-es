@@ -87,7 +87,26 @@ public class PaymentsIndexConfiguration {
     @Value("${reporting.fields.transferResponseCREATE}")
     private Boolean transferResponseCREATEVal;
 
-    public PaymentsIndexConfiguration(){}
+    @Value("${reporting.fields.currency}")
+    private Boolean currencyVal;
+
+    @Value("${reporting.fields.errorInformation}")
+    private Boolean errorInformationVal;
+
+    @Value("${reporting.fields.customData}")
+    private Boolean customDataVal;
+
+    @Value("${reporting.fields.confirmationReceived}")
+    private Boolean confirmationReceivedVal;
+
+    @Value("${reporting.fields.clientCorrelationId}")
+    private Boolean clientCorrelationIdVal;
+    
+    @Value("${reporting.fields.ams}")
+    private Boolean amsVal;
+
+    public PaymentsIndexConfiguration() {
+    }
 
     public List<String> getVariables() {
         Boolean amount = amountVal;
@@ -115,6 +134,13 @@ public class PaymentsIndexConfiguration {
         Boolean transferCreateFailed = transferCreateFailedVal;
         Boolean transferSettlementFailed = transferSettlementFailedVal;
         Boolean transferResponseCREATE = transferResponseCREATEVal;
+        Boolean currency = currencyVal;
+        Boolean errorInformation = errorInformationVal;
+        Boolean customData = customDataVal;
+        Boolean confirmationReceived = confirmationReceivedVal;
+        Boolean clientCorrelationId = clientCorrelationIdVal;
+        Boolean ams = amsVal;
+
             if (amount) {
                 variables.add("amount");
             }
@@ -190,10 +216,25 @@ public class PaymentsIndexConfiguration {
             if (transferResponseCREATE) {
                 variables.add("transferResponse-CREATE");
             }
-
-
+            if (currency) {
+                variables.add("currency");
+            }
+            if (errorInformation) {
+                variables.add("errorInformation");
+            }
+            if (customData) {
+                variables.add("customData");
+            }
+            if (confirmationReceived) {
+                variables.add("confirmationReceived");
+            }
+            if (clientCorrelationId) {
+                variables.add("clientCorrelationId");
+            }
+            if (ams) {
+                variables.add("ams");
+            }
         return variables;
     }
 
-    }
-
+}

@@ -109,6 +109,7 @@ public class ElasticsearchClient {
         logger.info("Calling bulk request for insert");
         bulkRequest.add(indexRequest);
     }
+
     public void bulk(UpdateRequest updateRequest) {
         logger.info("Calling bulk request for upsert");
         bulkRequest.add(updateRequest);
@@ -122,20 +123,20 @@ public class ElasticsearchClient {
         if (reportingEnabled) {
             upsertToReportingIndex(record);
         }
-            logger.info("Pushing index for " + indexFor(record));
-            IndexRequest request =
-                    new IndexRequest(indexFor(record), typeFor(record), idFor(record))
-                            .source(record.toString(), XContentType.JSON)
-                            .routing(Integer.toString(record.getInt("partitionId")));
-            bulk(request);
-        }
+        logger.info("Pushing index for " + indexFor(record));
+        IndexRequest request =
+                new IndexRequest(indexFor(record), typeFor(record), idFor(record))
+                        .source(record.toString(), XContentType.JSON)
+                        .routing(Integer.toString(record.getInt("partitionId")));
+        bulk(request);
+    }
 
-    public void upsertToReportingIndex(JSONObject record){
+    public void upsertToReportingIndex(JSONObject record) {
         JSONObject newRecord = new JSONObject();
         if (record.getString("valueType").equalsIgnoreCase("variable")) {
             JSONObject valueObj = record.getJSONObject("value");
-            if (valueObj.has("name")) {
-                if(paymentsIndexConfiguration.getVariables().contains(valueObj.getString("name"))) {
+            if (valueObj.has("name")) { // Checking for variable events
+                if (paymentsIndexConfiguration.getVariables().contains(valueObj.getString("name"))) {
                     if (valueObj.getString("name").equalsIgnoreCase("amount")) {
                         newRecord.put((String) valueObj.get("name"),
                                 Double.parseDouble(valueObj.getString("value").replaceAll("\"",
@@ -159,22 +160,13 @@ public class ElasticsearchClient {
             Instant timestamp = Instant.ofEpochMilli(record.getLong("timestamp"));
             String name = "zeebe-payments" + INDEX_DELIMITER + version + INDEX_DELIMITER +
                     formatter.format(timestamp);
-            if (!newRecord.has("initiator") || !newRecord.has("isNotificationsFailureEnabled") ||
-                    !newRecord.has("isNotificationsSuccessEnabled") || !newRecord.has("mpesaTransactionId")
-                    || !newRecord.has("partyLookupFailed") || !newRecord.has("tenantId") ||
-                    !newRecord.has("timer") || !newRecord.has("transactionId") ||
-                    !newRecord.has("transferCreateFailed") || !newRecord.has("getTransactionStatusHttpCode")
-                    || !newRecord.has("getTransactionStatusHttpCode") || !newRecord.has("errorCode") ||
-                    !newRecord.has("getTransactionStatusResponse") || !newRecord.has("isCallbackReceived")
-                    || !newRecord.has("transferResponse-CREATE")
-            ) {
-                UpdateRequest request1 = new UpdateRequest(name, valueObj.get("processInstanceKey").toString())
-                        .doc(newRecord.toMap())
-                        .upsert(newRecord.toString(), XContentType.JSON);
-                bulk(request1);
-            }
+            UpdateRequest request1 = new UpdateRequest(name, valueObj.get("processInstanceKey").toString())
+                    .doc(newRecord.toMap())
+                    .upsert(newRecord.toString(), XContentType.JSON);
+            bulk(request1);
         }
     }
+
     public synchronized int flush() {
         boolean success;
         int bulkSize = bulkRequest.numberOfActions();
@@ -251,7 +243,7 @@ public class ElasticsearchClient {
         // update alias in template in case it was changed in configuration
         template.put("aliases", Collections.singletonMap(aliasName, Collections.EMPTY_MAP));
 
-        if(reportingEnabled) {
+        if (reportingEnabled) {
             if (templateName.equals("zeebe-record")) {
                 Map<String, Object> template1;
                 try (InputStream inputStream1 =
@@ -289,8 +281,7 @@ public class ElasticsearchClient {
                     .isAcknowledged();
         }catch (ElasticsearchException exception){
             throw new ElasticsearchExporterException("Failed to Connect ES", exception);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             throw new ElasticsearchExporterException("Failed to put index template", e);
         }
     }
