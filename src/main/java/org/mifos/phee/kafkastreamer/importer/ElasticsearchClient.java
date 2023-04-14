@@ -109,6 +109,7 @@ public class ElasticsearchClient {
         logger.info("Calling bulk request for insert");
         bulkRequest.add(indexRequest);
     }
+
     public void bulk(UpdateRequest updateRequest) {
         logger.info("Calling bulk request for upsert");
         bulkRequest.add(updateRequest);
@@ -122,20 +123,20 @@ public class ElasticsearchClient {
         if (reportingEnabled) {
             upsertToReportingIndex(record);
         }
-            logger.info("Pushing index for " + indexFor(record));
-            IndexRequest request =
-                    new IndexRequest(indexFor(record), typeFor(record), idFor(record))
-                            .source(record.toString(), XContentType.JSON)
-                            .routing(Integer.toString(record.getInt("partitionId")));
-            bulk(request);
-        }
+        logger.info("Pushing index for " + indexFor(record));
+        IndexRequest request =
+                new IndexRequest(indexFor(record), typeFor(record), idFor(record))
+                        .source(record.toString(), XContentType.JSON)
+                        .routing(Integer.toString(record.getInt("partitionId")));
+        bulk(request);
+    }
 
-    public void upsertToReportingIndex(JSONObject record){
+    public void upsertToReportingIndex(JSONObject record) {
         JSONObject newRecord = new JSONObject();
         if (record.getString("valueType").equalsIgnoreCase("variable")) {
             JSONObject valueObj = record.getJSONObject("value");
             if (valueObj.has("name")) {
-                if(paymentsIndexConfiguration.getVariables().contains(valueObj.getString("name"))) {
+                if (paymentsIndexConfiguration.getVariables().contains(valueObj.getString("name"))) {
                     if (valueObj.getString("name").equalsIgnoreCase("amount")) {
                         newRecord.put((String) valueObj.get("name"),
                                 Double.parseDouble(valueObj.getString("value").replaceAll("\"",
@@ -175,6 +176,7 @@ public class ElasticsearchClient {
             }
         }
     }
+
     public synchronized int flush() {
         boolean success;
         int bulkSize = bulkRequest.numberOfActions();
@@ -251,7 +253,7 @@ public class ElasticsearchClient {
         // update alias in template in case it was changed in configuration
         template.put("aliases", Collections.singletonMap(aliasName, Collections.EMPTY_MAP));
 
-        if(reportingEnabled) {
+        if (reportingEnabled) {
             if (templateName.equals("zeebe-record")) {
                 Map<String, Object> template1;
                 try (InputStream inputStream1 =
@@ -287,10 +289,9 @@ public class ElasticsearchClient {
                     .indices()
                     .putTemplate(putIndexTemplateRequest, RequestOptions.DEFAULT)
                     .isAcknowledged();
-        }catch (ElasticsearchException exception){
+        } catch (ElasticsearchException exception) {
             throw new ElasticsearchExporterException("Failed to Connect ES", exception);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             throw new ElasticsearchExporterException("Failed to put index template", e);
         }
     }
@@ -298,7 +299,7 @@ public class ElasticsearchClient {
     private RestHighLevelClient createClient() {
         RestClientBuilder builder;
         SSLContext sslContext = null;
-        if(securityEnabled) {
+        if (securityEnabled) {
             final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
             credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(username, password));
             if (sslVerify) {
@@ -332,7 +333,7 @@ public class ElasticsearchClient {
             builder =
                     RestClient.builder(httpHost).setHttpClientConfigCallback(this::setHttpClientConfigCallback);
         }
-            return new RestHighLevelClient(builder);
+        return new RestHighLevelClient(builder);
     }
 
     private HttpAsyncClientBuilder setHttpClientConfigCallback(HttpAsyncClientBuilder builder) {
@@ -340,6 +341,7 @@ public class ElasticsearchClient {
 
         return builder;
     }
+
     private static HttpHost urlToHttpHost(String url) {
         URI uri;
         try {
@@ -383,7 +385,7 @@ public class ElasticsearchClient {
     }
 
     private static String valueTypeToString(ExtendedValueType extendedValueType) {
-        if(extendedValueType.name().equalsIgnoreCase("process_instance")){
+        if (extendedValueType.name().equalsIgnoreCase("process_instance")) {
             extendedValueType = ExtendedValueType.WORKFLOW_INSTANCE;
         }
         return extendedValueType.name().toLowerCase().replaceAll("_", "-");

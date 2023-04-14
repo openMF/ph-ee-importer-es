@@ -1,10 +1,3 @@
-/*
- * Copyright Camunda Services GmbH and/or licensed to Camunda Services GmbH under
- * one or more contributor license agreements. See the NOTICE file distributed
- * with this work for additional information regarding copyright ownership.
- * Licensed under the Zeebe Community License 1.0. You may not use this file
- * except in compliance with the Zeebe Community License 1.0.
- */
 package org.mifos.phee.kafkastreamer.importer;
 
 import io.zeebe.protocol.record.Record;
@@ -15,7 +8,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class ElasticsearchExporterConfiguration {
 
-    // elasticsearch http url
     public String url = "http://localhost:9200";
 
     public final IndexConfiguration index = new IndexConfiguration();
@@ -31,21 +23,16 @@ public class ElasticsearchExporterConfiguration {
     }
 
     @Override
-    public String toString() {
-        return "ElasticsearchExporterConfiguration{"
-                + "url='"
-                + url
-                + '\''
-                + ", index="
-                + index
-                + ", bulk="
-                + bulk
-                + '}';
+    public java.lang.String toString() {
+        return "ElasticsearchExporterConfiguration{" +
+                "url='" + url + '\'' +
+                ", index=" + index +
+                ", bulk=" + bulk +
+                '}';
     }
 
     public boolean shouldIndexRecord(final Record<?> record) {
-        return shouldIndexRecordType(record.getRecordType())
-                && shouldIndexValueType(record.getValueType());
+        return shouldIndexRecordType(record.getRecordType()) && shouldIndexValueType(record.getValueType());
     }
 
     public boolean shouldIndexValueType(final ValueType valueType) {

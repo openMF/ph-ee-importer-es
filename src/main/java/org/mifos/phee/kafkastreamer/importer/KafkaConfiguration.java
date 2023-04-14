@@ -28,14 +28,12 @@ public class KafkaConfiguration {
     @Value("${kafka.brokers}")
     private String kafkaBrokers;
 
-
     @Bean
     KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<String, String>> kafkaListenerContainerFactory() {
         ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
         factory.setConcurrency(3);  // TODO externalize
         factory.getContainerProperties().setPollTimeout(3000); // TODO externalize
-
         return factory;
     }
 
@@ -58,14 +56,12 @@ public class KafkaConfiguration {
     }
 
     public static String buildKafkaClientId(Logger logger) {
-        String clientId;
         try {
-            clientId = InetAddress.getLocalHost().getHostName();
+            return InetAddress.getLocalHost().getHostName();
         } catch (UnknownHostException e) {
             logger.error("failed to resolve local hostname, picking random clientId");
-            clientId = UUID.randomUUID().toString();
+            return UUID.randomUUID().toString();
         }
-        return clientId;
     }
 
 }
