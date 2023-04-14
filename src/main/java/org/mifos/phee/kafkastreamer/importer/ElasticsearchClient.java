@@ -1,9 +1,5 @@
 package org.mifos.phee.kafkastreamer.importer;
 
-import io.camunda.zeebe.exporter.ElasticsearchExporterException;
-import io.camunda.zeebe.exporter.ElasticsearchMetrics;
-import io.camunda.zeebe.util.VersionUtil;
-import io.prometheus.client.Histogram;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -14,20 +10,19 @@ import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
 import org.apache.http.impl.nio.reactor.IOReactorConfig;
 import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.http.ssl.SSLContexts;
-import org.elasticsearch.ElasticsearchException;
-import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateRequest;
-import org.elasticsearch.action.bulk.BulkItemResponse;
-import org.elasticsearch.action.bulk.BulkRequest;
-import org.elasticsearch.action.bulk.BulkResponse;
-import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.action.update.UpdateRequest;
-import org.elasticsearch.client.RequestOptions;
-import org.elasticsearch.client.RestClient;
-import org.elasticsearch.client.RestClientBuilder;
-import org.elasticsearch.client.RestHighLevelClient;
-import org.elasticsearch.common.xcontent.XContentHelper;
-import org.elasticsearch.xcontent.XContentType;
 import org.json.JSONObject;
+import org.opensearch.OpenSearchException;
+import org.opensearch.action.bulk.BulkItemResponse;
+import org.opensearch.action.bulk.BulkRequest;
+import org.opensearch.action.bulk.BulkResponse;
+import org.opensearch.action.index.IndexRequest;
+import org.opensearch.action.update.UpdateRequest;
+import org.opensearch.client.RequestOptions;
+import org.opensearch.client.RestClient;
+import org.opensearch.client.RestHighLevelClient;
+import org.opensearch.client.indices.PutIndexTemplateRequest;
+import org.opensearch.common.xcontent.XContentHelper;
+import org.opensearch.common.xcontent.XContentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -90,7 +85,7 @@ public class ElasticsearchClient {
     private PaymentsIndexConfiguration paymentsIndexConfiguration;
 
     private RestHighLevelClient client;
-    private ElasticsearchMetrics metrics;
+//    private ElasticsearchMetrics metrics;
 
     private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd").withZone(ZoneOffset.UTC);
     private BulkRequest bulkRequest = new BulkRequest();
@@ -116,17 +111,18 @@ public class ElasticsearchClient {
     }
 
     public void index(JSONObject record) {
-        if (metrics == null) {
-            metrics = new ElasticsearchMetrics(record.getInt("partitionId"));
-        }
+//        if (metrics == null) {
+//            metrics = new ElasticsearchMetrics(record.getInt("partitionId"));
+//        }
         logger.trace("Getting index method called with record value type {}", record.getString("valueType"));
         if (reportingEnabled) {
             upsertToReportingIndex(record);
         }
         logger.trace("Pushing index for " + indexFor(record));
-        IndexRequest request = new IndexRequest(indexFor(record), typeFor(record), idFor(record))
-                        .source(record.toString(), XContentType.JSON)
-                        .routing(Integer.toString(record.getInt("partitionId")));
+//        IndexRequest request = new IndexRequest(indexFor(record), typeFor(record), idFor(record))
+        IndexRequest request = new IndexRequest(indexFor(record))
+                .source(record.toString(), XContentType.JSON)
+                .routing(Integer.toString(record.getInt("partitionId")));
         bulk(request);
     }
 
@@ -155,7 +151,7 @@ public class ElasticsearchClient {
                 newRecord.put("timestamp", timestamp);
             }
             logger.trace("New Record before insert is: " + newRecord);
-            String version = VersionUtil.getVersionLowerCase();
+            String version = getVersion();
             Instant timestamp = Instant.ofEpochMilli(record.getLong("timestamp"));
             String name = "zeebe-payments" + INDEX_DELIMITER + version + INDEX_DELIMITER +
                     formatter.format(timestamp);
@@ -176,16 +172,20 @@ public class ElasticsearchClient {
         }
     }
 
+    private static String getVersion() { // TODO get version from somewhere
+        return "8.1.8";
+    }
+
     public synchronized int flush() {
         boolean success;
         int bulkSize = bulkRequest.numberOfActions();
         if (bulkSize > 0) {
             try {
-                metrics.recordBulkSize(bulkSize);
+//                metrics.recordBulkSize(bulkSize);
                 BulkResponse responses = exportBulk();
                 success = checkBulkResponses(responses);
             } catch (IOException e) {
-                throw new ElasticsearchExporterException("Failed to flush bulk", e);
+                throw new RuntimeException("Failed to flush bulk", e);
             }
 
             if (success) { // all records where flushed, create new bulk request, otherwise retry next time
@@ -197,9 +197,9 @@ public class ElasticsearchClient {
     }
 
     private BulkResponse exportBulk() throws IOException {
-        try (Histogram.Timer timer = metrics.measureFlushDuration()) {
-            return client.bulk(bulkRequest, RequestOptions.DEFAULT);
-        }
+//        try (Histogram.Timer timer = metrics.measureFlushDuration()) {
+        return client.bulk(bulkRequest, org.opensearch.client.RequestOptions.DEFAULT);
+//        }
     }
 
     private boolean checkBulkResponses(BulkResponse responses) {
@@ -238,12 +238,10 @@ public class ElasticsearchClient {
             if (inputStream != null) {
                 template = XContentHelper.convertToMap(XContentType.JSON.xContent(), inputStream, true);
             } else {
-                throw new ElasticsearchExporterException(
-                        "Failed to find index template in classpath " + filename);
+                throw new RuntimeException("Failed to find index template in classpath " + filename);
             }
         } catch (IOException e) {
-            throw new ElasticsearchExporterException(
-                    "Failed to load index template from classpath " + filename, e);
+            throw new RuntimeException("Failed to load index template from classpath " + filename, e);
         }
 
         // update prefix in template in case it was changed in configuration
@@ -260,21 +258,18 @@ public class ElasticsearchClient {
                     if (inputStream1 != null) {
                         template1 = XContentHelper.convertToMap(XContentType.JSON.xContent(), inputStream1, true);
                     } else {
-                        throw new ElasticsearchExporterException(
-                                "Failed to find index template in classpath " + filename);
+                        throw new RuntimeException("Failed to find index template in classpath " + filename);
                     }
                 } catch (IOException e) {
-                    throw new ElasticsearchExporterException(
-                            "Failed to load index template from classpath " + filename, e);
+                    throw new RuntimeException("Failed to load index template from classpath " + filename, e);
                 }
                 template1.put("index_patterns", Collections.singletonList("zeebe-payments" + INDEX_DELIMITER + "*"));
                 template1.put("aliases", Collections.singletonMap("zeebe-payments", Collections.EMPTY_MAP));
-                PutIndexTemplateRequest request = new PutIndexTemplateRequest("zeebe-payments").source(template1);
+                org.opensearch.client.indices.PutIndexTemplateRequest request = new org.opensearch.client.indices.PutIndexTemplateRequest("zeebe-payments").source(template1);
                 putIndexTemplate(request);
             }
         }
-        PutIndexTemplateRequest request =
-                new PutIndexTemplateRequest(templateName).source(template);
+        PutIndexTemplateRequest request = new PutIndexTemplateRequest(templateName).source(template);
 
         return putIndexTemplate(request);
     }
@@ -282,21 +277,21 @@ public class ElasticsearchClient {
     /**
      * @return true if request was acknowledged
      */
-    private boolean putIndexTemplate(PutIndexTemplateRequest putIndexTemplateRequest) {
+    private boolean putIndexTemplate(org.opensearch.client.indices.PutIndexTemplateRequest putIndexTemplateRequest) {
         try {
             return client
                     .indices()
                     .putTemplate(putIndexTemplateRequest, RequestOptions.DEFAULT)
                     .isAcknowledged();
-        } catch (ElasticsearchException exception) {
-            throw new ElasticsearchExporterException("Failed to Connect ES", exception);
+        } catch (OpenSearchException exception) {
+            throw new RuntimeException("Failed to Connect ES", exception);
         } catch (IOException e) {
-            throw new ElasticsearchExporterException("Failed to put index template", e);
+            throw new RuntimeException("Failed to put index template", e);
         }
     }
 
     private RestHighLevelClient createClient() {
-        RestClientBuilder builder;
+        org.opensearch.client.RestClientBuilder builder;
         SSLContext sslContext = null;
         if (securityEnabled) {
             final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
@@ -319,18 +314,13 @@ public class ElasticsearchClient {
             } else {
                 HttpHost httpHost = urlToHttpHost(elasticUrl);
                 builder = RestClient.builder(httpHost)
-                        .setHttpClientConfigCallback(new RestClientBuilder.HttpClientConfigCallback() {
-                            @Override
-                            public HttpAsyncClientBuilder customizeHttpClient(HttpAsyncClientBuilder httpClientBuilder) {
-                                return httpClientBuilder
-                                        .setDefaultCredentialsProvider(credentialsProvider);
-                            }
-                        });
+                        .setHttpClientConfigCallback(httpClientBuilder -> httpClientBuilder
+                                .setDefaultCredentialsProvider(credentialsProvider));
             }
         } else {
             HttpHost httpHost = urlToHttpHost(elasticUrl);
             builder =
-                    RestClient.builder(httpHost).setHttpClientConfigCallback(this::setHttpClientConfigCallback);
+                    org.opensearch.client.RestClient.builder(httpHost).setHttpClientConfigCallback(this::setHttpClientConfigCallback);
         }
         return new RestHighLevelClient(builder);
     }
@@ -346,7 +336,7 @@ public class ElasticsearchClient {
         try {
             uri = new URI(url);
         } catch (URISyntaxException e) {
-            throw new ElasticsearchExporterException("Failed to parse url " + url, e);
+            throw new RuntimeException("Failed to parse url " + url, e);
         }
 
         return new HttpHost(uri.getHost(), uri.getPort(), uri.getScheme());
@@ -374,7 +364,7 @@ public class ElasticsearchClient {
     }
 
     private String indexPrefixForValueType(ExtendedValueType valueType) {
-        String version = VersionUtil.getVersionLowerCase();
+        String version = getVersion();
 
         return indexPrefix
                 + INDEX_DELIMITER
