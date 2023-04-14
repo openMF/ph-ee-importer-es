@@ -106,12 +106,12 @@ public class ElasticsearchClient {
     }
 
     public void bulk(IndexRequest indexRequest) {
-        logger.info("Calling bulk request for insert");
+        logger.trace("Calling bulk request for insert");
         bulkRequest.add(indexRequest);
     }
 
     public void bulk(UpdateRequest updateRequest) {
-        logger.info("Calling bulk request for upsert");
+        logger.trace("Calling bulk request for upsert");
         bulkRequest.add(updateRequest);
     }
 
@@ -119,13 +119,12 @@ public class ElasticsearchClient {
         if (metrics == null) {
             metrics = new ElasticsearchMetrics(record.getInt("partitionId"));
         }
-        logger.info("Getting index method called with record value type " + record.getString("valueType"));
+        logger.trace("Getting index method called with record value type {}", record.getString("valueType"));
         if (reportingEnabled) {
             upsertToReportingIndex(record);
         }
-        logger.info("Pushing index for " + indexFor(record));
-        IndexRequest request =
-                new IndexRequest(indexFor(record), typeFor(record), idFor(record))
+        logger.trace("Pushing index for " + indexFor(record));
+        IndexRequest request = new IndexRequest(indexFor(record), typeFor(record), idFor(record))
                         .source(record.toString(), XContentType.JSON)
                         .routing(Integer.toString(record.getInt("partitionId")));
         bulk(request);
@@ -155,7 +154,7 @@ public class ElasticsearchClient {
                 Instant timestamp = Instant.ofEpochMilli(record.getLong("timestamp"));
                 newRecord.put("timestamp", timestamp);
             }
-            logger.info("New Record before insert is: " + newRecord);
+            logger.trace("New Record before insert is: " + newRecord);
             String version = VersionUtil.getVersionLowerCase();
             Instant timestamp = Instant.ofEpochMilli(record.getLong("timestamp"));
             String name = "zeebe-payments" + INDEX_DELIMITER + version + INDEX_DELIMITER +

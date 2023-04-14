@@ -30,4 +30,6 @@
         <appender-ref ref="CONSOLE"/>
         <appender-ref ref="LOG_FILE"/>
     </root>
+
+    <logger name="org.springframework" level="DEBUG"/>
 </configuration>
