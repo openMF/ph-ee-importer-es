@@ -1,6 +1,6 @@
 package org.mifos.phee.kafkastreamer.importer;
 
-import io.zeebe.exporter.ElasticsearchExporterConfiguration.IndexConfiguration;
+import io.camunda.zeebe.exporter.ElasticsearchExporterConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +26,7 @@ public class ElasticsearchTemplateSetup {
     }
 
     private void createIndexTemplates() {
-        IndexConfiguration indexConfiguration = new IndexConfiguration();
+        ElasticsearchExporterConfiguration.IndexConfiguration indexConfiguration = new ElasticsearchExporterConfiguration.IndexConfiguration();
 
         if (indexConfiguration.createTemplate) {
             createRootIndexTemplate();
@@ -37,9 +37,9 @@ public class ElasticsearchTemplateSetup {
             if (indexConfiguration.variable) {
                 createValueIndexTemplate(ExtendedValueType.VARIABLE);
             }
-            if (indexConfiguration.workflowInstance) {
-                createValueIndexTemplate(ExtendedValueType.WORKFLOW_INSTANCE);
-            }
+//            if (indexConfiguration.workflowInstance) {
+//                createValueIndexTemplate(ExtendedValueType.WORKFLOW_INSTANCE);
+//            }
         }
     }
 

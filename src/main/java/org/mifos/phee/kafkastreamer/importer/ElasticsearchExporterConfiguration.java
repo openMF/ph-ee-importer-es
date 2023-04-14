@@ -1,13 +1,12 @@
 package org.mifos.phee.kafkastreamer.importer;
 
-import io.zeebe.protocol.record.Record;
-import io.zeebe.protocol.record.RecordType;
-import io.zeebe.protocol.record.ValueType;
+import io.camunda.zeebe.protocol.record.Record;
+import io.camunda.zeebe.protocol.record.RecordType;
+import io.camunda.zeebe.protocol.record.ValueType;
 import org.springframework.stereotype.Component;
 
 @Component
 public class ElasticsearchExporterConfiguration {
-
     public String url = "http://localhost:9200";
 
     public final IndexConfiguration index = new IndexConfiguration();
@@ -55,12 +54,12 @@ public class ElasticsearchExporterConfiguration {
                 return index.variable;
             case VARIABLE_DOCUMENT:
                 return index.variableDocument;
-            case WORKFLOW_INSTANCE:
-                return index.workflowInstance;
-            case WORKFLOW_INSTANCE_CREATION:
-                return index.workflowInstanceCreation;
-            case WORKFLOW_INSTANCE_SUBSCRIPTION:
-                return index.workflowInstanceSubscription;
+//            case WORKFLOW_INSTANCE:
+//                return index.workflowInstance;
+//            case WORKFLOW_INSTANCE_CREATION:
+//                return index.workflowInstanceCreation;
+//            case WORKFLOW_INSTANCE_SUBSCRIPTION:
+//                return index.workflowInstanceSubscription;
             default:
                 return false;
         }
