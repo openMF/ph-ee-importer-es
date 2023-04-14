@@ -10,39 +10,37 @@
     "zeebe-record-workflow-instance": {}
   },
   "mappings": {
-    "_doc": {
-      "dynamic": "true",
-      "properties": {
-        "value": {
-          "dynamic": "true",
-          "properties": {
-            "bpmnProcessId": {
-              "type": "keyword"
-            },
-            "version": {
-              "type": "integer"
-            },
-            "processDefinitionKey": {
-              "type": "long"
-            },
-            "processInstanceKey": {
-              "type": "long"
-            },
-            "elementId": {
-              "type": "keyword"
-            },
-            "flowScopeKey": {
-              "type": "long"
-            },
-            "bpmnElementType": {
-              "type": "keyword"
-            },
-            "parentProcessInstanceKey": {
-              "type": "long"
-            },
-            "parentElementInstanceKey": {
-              "type": "long"
-            }
+    "dynamic": "true",
+    "properties": {
+      "value": {
+        "dynamic": "true",
+        "properties": {
+          "bpmnProcessId": {
+            "type": "keyword"
+          },
+          "version": {
+            "type": "integer"
+          },
+          "processDefinitionKey": {
+            "type": "long"
+          },
+          "processInstanceKey": {
+            "type": "long"
+          },
+          "elementId": {
+            "type": "keyword"
+          },
+          "flowScopeKey": {
+            "type": "long"
+          },
+          "bpmnElementType": {
+            "type": "keyword"
+          },
+          "parentProcessInstanceKey": {
+            "type": "long"
+          },
+          "parentElementInstanceKey": {
+            "type": "long"
           }
         }
       }

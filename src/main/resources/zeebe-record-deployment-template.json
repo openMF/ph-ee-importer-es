@@ -7,39 +7,37 @@
     "zeebe-record-deployment": {}
   },
   "mappings": {
-    "_doc": {
-      "dynamic": "true",
-      "properties": {
-        "value": {
-          "dynamic": "true",
-          "properties": {
-            "deployedWorkflows": {
-              "properties": {
-                "bpmnProcessId": {
-                  "type": "keyword"
-                },
-                "version": {
-                  "type": "long"
-                },
-                "workflowKey": {
-                  "type": "long"
-                },
-                "resourceName": {
-                  "type": "text"
-                }
+    "dynamic": "true",
+    "properties": {
+      "value": {
+        "dynamic": "true",
+        "properties": {
+          "deployedWorkflows": {
+            "properties": {
+              "bpmnProcessId": {
+                "type": "keyword"
+              },
+              "version": {
+                "type": "long"
+              },
+              "workflowKey": {
+                "type": "long"
+              },
+              "resourceName": {
+                "type": "text"
               }
-            },
-            "resources": {
-              "properties": {
-                "resource": {
-                  "enabled": false
-                },
-                "resourceName": {
-                  "type": "text"
-                },
-                "resourceType": {
-                  "type": "keyword"
-                }
+            }
+          },
+          "resources": {
+            "properties": {
+              "resource": {
+                "enabled": false
+              },
+              "resourceName": {
+                "type": "text"
+              },
+              "resourceType": {
+                "type": "keyword"
               }
             }
           }

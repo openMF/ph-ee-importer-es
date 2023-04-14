@@ -7,21 +7,19 @@
     "zeebe-record-variable-document": {}
   },
   "mappings": {
-    "_doc": {
-      "dynamic": "true",
-      "properties": {
-        "value": {
-          "dynamic": "true",
-          "properties": {
-            "scopeKey": {
-              "type": "long"
-            },
-            "updateSemantics": {
-              "type": "keyword"
-            },
-            "variables": {
-              "enabled": false
-            }
+    "dynamic": "true",
+    "properties": {
+      "value": {
+        "dynamic": "true",
+        "properties": {
+          "scopeKey": {
+            "type": "long"
+          },
+          "updateSemantics": {
+            "type": "keyword"
+          },
+          "variables": {
+            "enabled": false
           }
         }
       }

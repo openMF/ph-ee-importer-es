@@ -253,8 +253,7 @@ public class ElasticsearchClient {
         if (reportingEnabled) {
             if (templateName.equals("zeebe-record")) {
                 Map<String, Object> template1;
-                try (InputStream inputStream1 =
-                             KafkaElasticImportApplication.class.getResourceAsStream("/zeebe-payments.json")) {
+                try (InputStream inputStream1 = KafkaElasticImportApplication.class.getResourceAsStream("/zeebe-payments.json")) {
                     if (inputStream1 != null) {
                         template1 = XContentHelper.convertToMap(XContentType.JSON.xContent(), inputStream1, true);
                     } else {
@@ -265,7 +264,7 @@ public class ElasticsearchClient {
                 }
                 template1.put("index_patterns", Collections.singletonList("zeebe-payments" + INDEX_DELIMITER + "*"));
                 template1.put("aliases", Collections.singletonMap("zeebe-payments", Collections.EMPTY_MAP));
-                org.opensearch.client.indices.PutIndexTemplateRequest request = new org.opensearch.client.indices.PutIndexTemplateRequest("zeebe-payments").source(template1);
+                PutIndexTemplateRequest request = new PutIndexTemplateRequest("zeebe-payments").source(template1);
                 putIndexTemplate(request);
             }
         }

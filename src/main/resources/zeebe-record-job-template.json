@@ -10,54 +10,52 @@
     "zeebe-record-job": {}
   },
   "mappings": {
-    "_doc": {
-      "dynamic": "true",
-      "properties": {
-        "value": {
-          "dynamic": "true",
-          "properties": {
-            "type": {
-              "type": "keyword"
-            },
-            "elementId": {
-              "type": "text"
-            },
-            "elementInstanceKey": {
-              "type": "long"
-            },
-            "bpmnProcessId": {
-              "type": "keyword"
-            },
-            "workflowDefinitionVersion": {
-              "type": "integer"
-            },
-            "workflowInstanceKey": {
-              "type": "long"
-            },
-            "workflowKey": {
-              "type": "long"
-            },
-            "customHeaders": {
-              "enabled": false
-            },
-            "worker": {
-              "type": "keyword"
-            },
-            "retries": {
-              "type": "long"
-            },
-            "deadline": {
-              "type": "long"
-            },
-            "variables": {
-              "enabled": false
-            },
-            "errorMessage": {
-              "type": "text"
-            },
-            "errorCode": {
-              "type": "text"
-            }
+    "dynamic": "true",
+    "properties": {
+      "value": {
+        "dynamic": "true",
+        "properties": {
+          "type": {
+            "type": "keyword"
+          },
+          "elementId": {
+            "type": "text"
+          },
+          "elementInstanceKey": {
+            "type": "long"
+          },
+          "bpmnProcessId": {
+            "type": "keyword"
+          },
+          "workflowDefinitionVersion": {
+            "type": "integer"
+          },
+          "workflowInstanceKey": {
+            "type": "long"
+          },
+          "workflowKey": {
+            "type": "long"
+          },
+          "customHeaders": {
+            "enabled": false
+          },
+          "worker": {
+            "type": "keyword"
+          },
+          "retries": {
+            "type": "long"
+          },
+          "deadline": {
+            "type": "long"
+          },
+          "variables": {
+            "enabled": false
+          },
+          "errorMessage": {
+            "type": "text"
+          },
+          "errorCode": {
+            "type": "text"
           }
         }
       }

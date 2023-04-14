@@ -7,33 +7,31 @@
     "zeebe-record-message-subscription": {}
   },
   "mappings": {
-    "_doc": {
-      "dynamic": "true",
-      "properties": {
-        "value": {
-          "dynamic": "true",
-          "properties": {
-            "workflowInstancePartitionId": {
-              "type": "integer"
-            },
-            "workflowInstanceKey": {
-              "type": "long"
-            },
-            "elementInstanceKey": {
-              "type": "long"
-            },
-            "messageName": {
-              "type": "keyword"
-            },
-            "correlationKey": {
-              "type": "text"
-            },
-            "bpmnProcessId": {
-              "type": "keyword"
-            },
-            "messageKey": {
-              "type": "long"
-            }
+    "dynamic": "true",
+    "properties": {
+      "value": {
+        "dynamic": "true",
+        "properties": {
+          "workflowInstancePartitionId": {
+            "type": "integer"
+          },
+          "workflowInstanceKey": {
+            "type": "long"
+          },
+          "elementInstanceKey": {
+            "type": "long"
+          },
+          "messageName": {
+            "type": "keyword"
+          },
+          "correlationKey": {
+            "type": "text"
+          },
+          "bpmnProcessId": {
+            "type": "keyword"
+          },
+          "messageKey": {
+            "type": "long"
           }
         }
       }

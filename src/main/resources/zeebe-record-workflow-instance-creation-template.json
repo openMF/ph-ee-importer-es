@@ -7,27 +7,25 @@
     "zeebe-record-workflow-instance-creation": {}
   },
   "mappings": {
-    "_doc": {
-      "dynamic": "true",
-      "properties": {
-        "value": {
-          "dynamic": "true",
-          "properties": {
-            "bpmnProcessId": {
-              "type": "keyword"
-            },
-            "version": {
-              "type": "integer"
-            },
-            "workflowKey": {
-              "type": "long"
-            },
-            "workflowInstanceKey": {
-              "type": "long"
-            },
-            "variables": {
-              "enabled": false
-            }
+    "dynamic": "true",
+    "properties": {
+      "value": {
+        "dynamic": "true",
+        "properties": {
+          "bpmnProcessId": {
+            "type": "keyword"
+          },
+          "version": {
+            "type": "integer"
+          },
+          "workflowKey": {
+            "type": "long"
+          },
+          "workflowInstanceKey": {
+            "type": "long"
+          },
+          "variables": {
+            "enabled": false
           }
         }
       }

@@ -12,40 +12,37 @@
     "zeebe-record": {}
   },
   "mappings": {
-    "_doc": {
-
-      "dynamic": "true",
-      "properties": {
-        "position": {
-          "type": "long"
-        },
-        "sourceRecordPosition": {
-          "type": "long"
-        },
-        "key": {
-          "type": "long"
-        },
-        "timestamp": {
-          "type": "date"
-        },
-        "intent": {
-          "type": "keyword"
-        },
-        "partitionId": {
-          "type": "integer"
-        },
-        "recordType": {
-          "type": "keyword"
-        },
-        "rejectionType": {
-          "type": "keyword"
-        },
-        "rejectionReason": {
-          "type": "text"
-        },
-        "valueType": {
-          "type": "keyword"
-        }
+    "dynamic": "true",
+    "properties": {
+      "position": {
+        "type": "long"
+      },
+      "sourceRecordPosition": {
+        "type": "long"
+      },
+      "key": {
+        "type": "long"
+      },
+      "timestamp": {
+        "type": "date"
+      },
+      "intent": {
+        "type": "keyword"
+      },
+      "partitionId": {
+        "type": "integer"
+      },
+      "recordType": {
+        "type": "keyword"
+      },
+      "rejectionType": {
+        "type": "keyword"
+      },
+      "rejectionReason": {
+        "type": "text"
+      },
+      "valueType": {
+        "type": "keyword"
       }
     }
   }

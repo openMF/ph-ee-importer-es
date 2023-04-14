@@ -7,33 +7,31 @@
     "zeebe-record-workflow-instance-subscription": {}
   },
   "mappings": {
-    "_doc": {
-      "dynamic": "true",
-      "properties": {
-        "value": {
-          "dynamic": "true",
-          "properties": {
-            "workflowInstanceKey": {
-              "type": "long"
-            },
-            "elementInstanceKey": {
-              "type": "long"
-            },
-            "messageName": {
-              "type": "keyword"
-            },
-            "variables": {
-              "enabled": false
-            },
-            "bpmnProcessId": {
-              "type": "keyword"
-            },
-            "messageKey": {
-              "type": "long"
-            },
-            "correlationKey": {
-              "type": "keyword"
-            }
+    "dynamic": "true",
+    "properties": {
+      "value": {
+        "dynamic": "true",
+        "properties": {
+          "workflowInstanceKey": {
+            "type": "long"
+          },
+          "elementInstanceKey": {
+            "type": "long"
+          },
+          "messageName": {
+            "type": "keyword"
+          },
+          "variables": {
+            "enabled": false
+          },
+          "bpmnProcessId": {
+            "type": "keyword"
+          },
+          "messageKey": {
+            "type": "long"
+          },
+          "correlationKey": {
+            "type": "keyword"
           }
         }
       }

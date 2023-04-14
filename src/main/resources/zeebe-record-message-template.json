@@ -7,27 +7,25 @@
     "zeebe-record-message": {}
   },
   "mappings": {
-    "_doc": {
-      "dynamic": "true",
-      "properties": {
-        "value": {
-          "dynamic": "true",
-          "properties": {
-            "name": {
-              "type": "keyword"
-            },
-            "correlationKey": {
-              "type": "text"
-            },
-            "messageId": {
-              "type": "keyword"
-            },
-            "timeToLive": {
-              "type": "long"
-            },
-            "variables": {
-              "enabled": false
-            }
+    "dynamic": "true",
+    "properties": {
+      "value": {
+        "dynamic": "true",
+        "properties": {
+          "name": {
+            "type": "keyword"
+          },
+          "correlationKey": {
+            "type": "text"
+          },
+          "messageId": {
+            "type": "keyword"
+          },
+          "timeToLive": {
+            "type": "long"
+          },
+          "variables": {
+            "enabled": false
           }
         }
       }

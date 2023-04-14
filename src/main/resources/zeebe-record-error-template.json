@@ -7,24 +7,22 @@
     "zeebe-record-error": {}
   },
   "mappings": {
-    "_doc": {
-      "dynamic": "true",
-      "properties": {
-        "value": {
-          "dynamic": "true",
-          "properties": {
-            "exceptionMessage": {
-              "type": "text"
-            },
-            "stacktrace": {
-              "type": "text"
-            },
-            "errorEventPosition": {
-              "type": "long"
-            },
-            "workflowInstanceKey": {
-              "type": "long"
-            }
+    "dynamic": "true",
+    "properties": {
+      "value": {
+        "dynamic": "true",
+        "properties": {
+          "exceptionMessage": {
+            "type": "text"
+          },
+          "stacktrace": {
+            "type": "text"
+          },
+          "errorEventPosition": {
+            "type": "long"
+          },
+          "workflowInstanceKey": {
+            "type": "long"
           }
         }
       }
