@@ -1,11 +1,14 @@
 package org.mifos.phee.kafkastreamer.importer;
 
 import org.json.JSONObject;
+import org.mifos.phee.kafkastreamer.importer.service.MaskingService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
+
+import static org.apache.commons.text.StringEscapeUtils.unescapeJava;
 
 @Component
 public class KafkaImporter {
@@ -14,9 +17,16 @@ public class KafkaImporter {
     @Autowired
     private ElasticsearchClient elasticsearchClient;
 
+    @Autowired
+    private MaskingService maskingService;
+
 
     @KafkaListener(topics = "${importer.kafka.topic}")
-    public void listen(String rawData) {
+    public void listen(String rawData) throws Exception {
+        logger.debug("Before: {}", rawData);
+        rawData = maskingService.mask(rawData);
+        logger.debug("After: {}", rawData);
+
         JSONObject data = new JSONObject(rawData);
         logger.trace("from kafka: {}", data.toString(2));
 
@@ -27,6 +37,4 @@ public class KafkaImporter {
             logger.info("flushed {} records to ES", flushed);
         }
     }
-
 }
-
