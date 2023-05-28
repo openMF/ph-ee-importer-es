@@ -1,4 +1,4 @@
-FROM openjdk:13
+FROM openjdk:17
 WORKDIR /app
 COPY build/libs/*.jar .
 CMD java -jar *.jar
