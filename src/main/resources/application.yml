@@ -2,6 +2,10 @@ kafka:
   brokers: "kafka:9092"
 
 importer:
+  masking:
+    enable: true
+    key: "<aes encryption key>"
+    fields: "partyIdentifier,partyId"
   kafka:
     topic: "zeebe-export"
   elasticsearch:
