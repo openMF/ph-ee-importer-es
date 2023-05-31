@@ -24,20 +24,20 @@ public class MaskingServiceImpl implements MaskingService {
 
     @Override
     public String mask(String rawData) throws Exception {
-        log.info("Inside mask");
+        log.debug("Inside mask");
         JSONObject data = new JSONObject(rawData);
         String valueType = data.getString(KafkaVariables.VALUE_TYPE);
         if (!valueType.equalsIgnoreCase(KafkaVariables.VALUE_TYPE_VARIABLE)) {
             // do nothing when record value type is [KafkaVariables.VALUE_TYPE_VARIABLE]
-            log.info("Do nothing");
+            log.debug("Do nothing");
             return rawData;
         }
 
         JSONObject value = data.getJSONObject(KafkaVariables.VALUE);
         String name = value.getString(KafkaVariables.NAME);
-        log.info("NAME: {}, VALUE: {}", name, value);
+        log.debug("NAME: {}, VALUE: {}", name, value);
         if (name.equalsIgnoreCase(KafkaVariables.CHANNEL_REQUEST)) {
-            log.info("Inside CHANNEL_REQUEST condition");
+            log.debug("Inside CHANNEL_REQUEST condition");
             String valueStringifiedJsonString = value.getString(KafkaVariables.VALUE);
             JSONObject channelRequest = getJsonObjectFromStringifiedJson(valueStringifiedJsonString);
             String payerPartyIdentifier = channelRequest.getJSONObject(KafkaVariables.PAYER)
@@ -60,7 +60,7 @@ public class MaskingServiceImpl implements MaskingService {
 
             value.put(KafkaVariables.VALUE, channelRequest.toString());
         } else if (name.equalsIgnoreCase(KafkaVariables.CHANNEL_GSMA_REQUEST)) {
-            log.info("Inside CHANNEL_GSMA_REQUEST condition");
+            log.debug("Inside CHANNEL_GSMA_REQUEST condition");
             String valueStringifiedJsonString = value.getString(KafkaVariables.VALUE);
             JSONObject channelGsmaRequest = getJsonObjectFromStringifiedJson(valueStringifiedJsonString);
 
@@ -79,11 +79,11 @@ public class MaskingServiceImpl implements MaskingService {
 
             value.put(KafkaVariables.VALUE, channelGsmaRequest.toString());
         } else {
-            log.info("Inside ELSE condition");
+            log.debug("Inside ELSE condition");
             for (String field: fieldsToBeMasked) {
-                log.info("Field: {}", field);
+                log.debug("Field: {}", field);
                 if (name.equalsIgnoreCase(field)) {
-                    log.info("Field matched: {}", name);
+                    log.debug("Field matched: {}", name);
                     String fieldValue = value.getString(KafkaVariables.VALUE);
                     fieldValue = encryptData(fieldValue);
                     value.put(KafkaVariables.VALUE, fieldValue);
@@ -109,18 +109,18 @@ public class MaskingServiceImpl implements MaskingService {
         if (data.isEmpty()) {
             // nothing to mask
             return data;
+        } else if (data.length() == 1) {
+            // mask everything
+            masked =  AesUtil.encrypt(data, encryptionKey);
         } else if (data.length() == 2) {
              // leave last digit and mask first
             unmasked = data.substring(data.length()-1);
             masked = AesUtil.encrypt(data.substring(0, data.length()-1), encryptionKey);
-        } else if (data.length() == 1) {
-            // mask everything
-            masked =  AesUtil.encrypt(data, encryptionKey);
         } else {
             // leave last 2 digit and mask rest of it
             unmasked = data.substring(data.length()-2);
             masked = AesUtil.encrypt(data.substring(0, data.length()-2), encryptionKey);
         }
-        return "{" + masked + "}" + unmasked;
+        return new StringBuilder().append("{").append(masked).append("}").append(unmasked).toString();
     }
 }

@@ -3,6 +3,7 @@ kafka:
 
 importer:
   masking:
+    enable: true
     key: "<aes encryption key>"
     fields: "partyIdentifier,partyId"
   kafka:
