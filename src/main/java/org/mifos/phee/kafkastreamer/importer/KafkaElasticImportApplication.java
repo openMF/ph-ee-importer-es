@@ -8,8 +8,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @SpringBootApplication
 public class KafkaElasticImportApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(KafkaElasticImportApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(KafkaElasticImportApplication.class, args);
+    }
 
 }

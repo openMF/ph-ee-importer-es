@@ -1,11 +1,9 @@
 package org.mifos.phee.kafkastreamer.importer;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-
 import java.util.ArrayList;
 import java.util.List;
-
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 @Component
 public class PaymentsIndexConfiguration {
@@ -101,12 +99,11 @@ public class PaymentsIndexConfiguration {
 
     @Value("${reporting.fields.clientCorrelationId}")
     private Boolean clientCorrelationIdVal;
-    
+
     @Value("${reporting.fields.ams}")
     private Boolean amsVal;
 
-    public PaymentsIndexConfiguration() {
-    }
+    public PaymentsIndexConfiguration() {}
 
     public List<String> getVariables() {
         Boolean amount = amountVal;

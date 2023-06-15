@@ -9,10 +9,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
-import static org.apache.commons.text.StringEscapeUtils.unescapeJava;
-
 @Component
 public class KafkaImporter {
+
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
@@ -23,7 +22,6 @@ public class KafkaImporter {
 
     @Autowired
     private MaskingService maskingService;
-
 
     @KafkaListener(topics = "${importer.kafka.topic}")
     public void listen(String rawData) throws Exception {

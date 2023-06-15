@@ -1,6 +1,7 @@
 package org.mifos.phee.kafkastreamer.importer;
 
 public class KafkaVariables {
+
     public static final String VALUE_TYPE = "valueType";
     public static final String VALUE = "value";
     public static final String NAME = "name";

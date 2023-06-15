@@ -8,16 +8,16 @@
 package org.mifos.phee.kafkastreamer.importer;
 
 import io.zeebe.exporter.ElasticsearchExporterConfiguration.IndexConfiguration;
+import javax.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
-
 @Component
 public class ElasticsearchTemplateSetup {
+
     public static final String ZEEBE_RECORD_TEMPLATE_JSON = "/zeebe-record-template.json";
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 

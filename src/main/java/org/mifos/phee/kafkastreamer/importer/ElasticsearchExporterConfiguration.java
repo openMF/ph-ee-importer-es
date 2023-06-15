@@ -32,20 +32,11 @@ public class ElasticsearchExporterConfiguration {
 
     @Override
     public String toString() {
-        return "ElasticsearchExporterConfiguration{"
-                + "url='"
-                + url
-                + '\''
-                + ", index="
-                + index
-                + ", bulk="
-                + bulk
-                + '}';
+        return "ElasticsearchExporterConfiguration{" + "url='" + url + '\'' + ", index=" + index + ", bulk=" + bulk + '}';
     }
 
     public boolean shouldIndexRecord(final Record<?> record) {
-        return shouldIndexRecordType(record.getRecordType())
-                && shouldIndexValueType(record.getValueType());
+        return shouldIndexRecordType(record.getRecordType()) && shouldIndexValueType(record.getValueType());
     }
 
     public boolean shouldIndexValueType(final ValueType valueType) {
@@ -93,6 +84,7 @@ public class ElasticsearchExporterConfiguration {
     }
 
     public static class IndexConfiguration {
+
         // prefix for index and templates
         public String prefix = "zeebe-record";
 
@@ -123,47 +115,17 @@ public class ElasticsearchExporterConfiguration {
 
         @Override
         public String toString() {
-            return "IndexConfiguration{"
-                    + "indexPrefix='"
-                    + prefix
-                    + '\''
-                    + ", createTemplate="
-                    + createTemplate
-                    + ", command="
-                    + command
-                    + ", event="
-                    + event
-                    + ", rejection="
-                    + rejection
-                    + ", error="
-                    + error
-                    + ", deployment="
-                    + deployment
-                    + ", incident="
-                    + incident
-                    + ", job="
-                    + job
-                    + ", message="
-                    + message
-                    + ", messageSubscription="
-                    + messageSubscription
-                    + ", variable="
-                    + variable
-                    + ", variableDocument="
-                    + variableDocument
-                    + ", workflowInstance="
-                    + workflowInstance
-                    + ", workflowInstanceCreation="
-                    + workflowInstanceCreation
-                    + ", workflowInstanceSubscription="
-                    + workflowInstanceSubscription
-                    + ", ignoreVariablesAbove="
-                    + ignoreVariablesAbove
-                    + '}';
+            return "IndexConfiguration{" + "indexPrefix='" + prefix + '\'' + ", createTemplate=" + createTemplate + ", command=" + command
+                    + ", event=" + event + ", rejection=" + rejection + ", error=" + error + ", deployment=" + deployment + ", incident="
+                    + incident + ", job=" + job + ", message=" + message + ", messageSubscription=" + messageSubscription + ", variable="
+                    + variable + ", variableDocument=" + variableDocument + ", workflowInstance=" + workflowInstance
+                    + ", workflowInstanceCreation=" + workflowInstanceCreation + ", workflowInstanceSubscription="
+                    + workflowInstanceSubscription + ", ignoreVariablesAbove=" + ignoreVariablesAbove + '}';
         }
     }
 
     public static class BulkConfiguration {
+
         // delay before forced flush
         public int delay = 5;
         // bulk size before flush
@@ -173,18 +135,12 @@ public class ElasticsearchExporterConfiguration {
 
         @Override
         public String toString() {
-            return "BulkConfiguration{"
-                    + "delay="
-                    + delay
-                    + ", size="
-                    + size
-                    + ", memoryLimit="
-                    + memoryLimit
-                    + '}';
+            return "BulkConfiguration{" + "delay=" + delay + ", size=" + size + ", memoryLimit=" + memoryLimit + '}';
         }
     }
 
     public static class AuthenticationConfiguration {
+
         private String username;
         private String password;
 
