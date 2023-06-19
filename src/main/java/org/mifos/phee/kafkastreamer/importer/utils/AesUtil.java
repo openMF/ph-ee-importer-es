@@ -1,23 +1,26 @@
 package org.mifos.phee.kafkastreamer.importer.utils;
 
-import org.apache.commons.codec.binary.Base64;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
+import org.apache.commons.codec.binary.Base64;
 
 public class AesUtil {
 
     /**
      * Encrypts the string data using AES algorithm
-     * @param plaintext the string data to be encrypted
-     * @param stringKey key in the Base64 string encoded format
+     *
+     * @param plaintext
+     *            the string data to be encrypted
+     * @param stringKey
+     *            key in the Base64 string encoded format
      * @return ecnypted data
      * @throws Exception
      */
-    public static String encrypt(String plaintext, String stringKey) throws Exception{
+    public static String encrypt(String plaintext, String stringKey) throws Exception {
         SecretKey key = getSecretKey(stringKey);
         Cipher cipher = Cipher.getInstance("AES");
         cipher.init(Cipher.ENCRYPT_MODE, key);
@@ -26,8 +29,11 @@ public class AesUtil {
 
     /**
      * Decrypts the data using AES algorithm
-     * @param encryptedString Base64 encoded encrypted string
-     * @param stringKey key in the Base64 string encoded format
+     *
+     * @param encryptedString
+     *            Base64 encoded encrypted string
+     * @param stringKey
+     *            key in the Base64 string encoded format
      * @return decrypted data in string format
      * @throws Exception
      */

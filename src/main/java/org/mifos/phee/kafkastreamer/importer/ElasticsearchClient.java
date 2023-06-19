@@ -4,6 +4,20 @@ import io.prometheus.client.Histogram;
 import io.zeebe.exporter.ElasticsearchExporterException;
 import io.zeebe.exporter.ElasticsearchMetrics;
 import io.zeebe.util.VersionUtil;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.util.Collections;
+import java.util.Map;
+import javax.annotation.PostConstruct;
+import javax.net.ssl.SSLContext;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -27,7 +41,6 @@ import org.elasticsearch.client.RestClientBuilder;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.xcontent.XContentHelper;
 import org.elasticsearch.common.xcontent.XContentType;
-import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,23 +50,9 @@ import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.support.PeriodicTrigger;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
-import javax.net.ssl.SSLContext;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.security.KeyManagementException;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.time.Instant;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
-import java.util.Collections;
-import java.util.Map;
-
 @Component
 public class ElasticsearchClient {
+
     public static String INDEX_TEMPLATE_FILENAME_PATTERN = "/zeebe-record-%s-template.json";
     public static String INDEX_DELIMITER = "_";
     public static String ALIAS_DELIMITER = "-";
@@ -125,10 +124,8 @@ public class ElasticsearchClient {
             upsertToReportingIndex(record);
         }
         logger.info("Pushing index for " + indexFor(record));
-        IndexRequest request =
-                new IndexRequest(indexFor(record), typeFor(record), idFor(record))
-                        .source(record.toString(), XContentType.JSON)
-                        .routing(Integer.toString(record.getInt("partitionId")));
+        IndexRequest request = new IndexRequest(indexFor(record), typeFor(record), idFor(record))
+                .source(record.toString(), XContentType.JSON).routing(Integer.toString(record.getInt("partitionId")));
         bulk(request);
     }
 
@@ -139,30 +136,25 @@ public class ElasticsearchClient {
             if (valueObj.has("name")) { // Checking for variable events
                 if (paymentsIndexConfiguration.getVariables().contains(valueObj.getString("name"))) {
                     if (valueObj.getString("name").equalsIgnoreCase("amount")) {
-                        newRecord.put((String) valueObj.get("name"),
-                                Double.parseDouble(valueObj.getString("value").replaceAll("\"",
-                                        "")));
+                        newRecord.put((String) valueObj.get("name"), Double.parseDouble(valueObj.getString("value").replaceAll("\"", "")));
                     } else if (valueObj.getString("name").equalsIgnoreCase("originDate")) {
                         Instant timestamp = Instant.ofEpochMilli(valueObj.getLong("value"));
                         newRecord.put((String) valueObj.get("name"), timestamp);
                     } else {
-                        newRecord.put((String) valueObj.get("name"), valueObj.get("value").toString()
-                                .replaceAll("\"", ""));
+                        newRecord.put((String) valueObj.get("name"), valueObj.get("value").toString().replaceAll("\"", ""));
                     }
                 }
-                if (!newRecord.has("processInstanceKey"))
-                    newRecord.put("processInstanceKey",
-                            String.valueOf(valueObj.getLong("processInstanceKey")));
-                Instant timestamp = Instant.ofEpochMilli(record.getLong("timestamp"));
-                newRecord.put("timestamp", timestamp);
+                if (!newRecord.has("processInstanceKey")) {
+                    newRecord.put("processInstanceKey", String.valueOf(valueObj.getLong("processInstanceKey")));
+                    Instant timestamp = Instant.ofEpochMilli(record.getLong("timestamp"));
+                    newRecord.put("timestamp", timestamp);
+                }
             }
             logger.info("New Record before insert is: " + newRecord);
             String version = VersionUtil.getVersionLowerCase();
             Instant timestamp = Instant.ofEpochMilli(record.getLong("timestamp"));
-            String name = "zeebe-payments" + INDEX_DELIMITER + version + INDEX_DELIMITER +
-                    formatter.format(timestamp);
-            UpdateRequest request1 = new UpdateRequest(name, valueObj.get("processInstanceKey").toString())
-                    .doc(newRecord.toMap())
+            String name = "zeebe-payments" + INDEX_DELIMITER + version + INDEX_DELIMITER + formatter.format(timestamp);
+            UpdateRequest request1 = new UpdateRequest(name, valueObj.get("processInstanceKey").toString()).doc(newRecord.toMap())
                     .upsert(newRecord.toString(), XContentType.JSON);
             bulk(request1);
         }
@@ -222,20 +214,16 @@ public class ElasticsearchClient {
     /**
      * @return true if request was acknowledged
      */
-    public boolean putIndexTemplate(
-            String templateName, String aliasName, String filename) {
+    public boolean putIndexTemplate(String templateName, String aliasName, String filename) {
         Map<String, Object> template;
-        try (InputStream inputStream =
-                     KafkaElasticImportApplication.class.getResourceAsStream(filename)) {
+        try (InputStream inputStream = KafkaElasticImportApplication.class.getResourceAsStream(filename)) {
             if (inputStream != null) {
                 template = XContentHelper.convertToMap(XContentType.JSON.xContent(), inputStream, true);
             } else {
-                throw new ElasticsearchExporterException(
-                        "Failed to find index template in classpath " + filename);
+                throw new ElasticsearchExporterException("Failed to find index template in classpath " + filename);
             }
         } catch (IOException e) {
-            throw new ElasticsearchExporterException(
-                    "Failed to load index template from classpath " + filename, e);
+            throw new ElasticsearchExporterException("Failed to load index template from classpath " + filename, e);
         }
 
         // update prefix in template in case it was changed in configuration
@@ -247,17 +235,14 @@ public class ElasticsearchClient {
         if (reportingEnabled) {
             if (templateName.equals("zeebe-record")) {
                 Map<String, Object> template1;
-                try (InputStream inputStream1 =
-                             KafkaElasticImportApplication.class.getResourceAsStream("/zeebe-payments.json")) {
+                try (InputStream inputStream1 = KafkaElasticImportApplication.class.getResourceAsStream("/zeebe-payments.json")) {
                     if (inputStream1 != null) {
                         template1 = XContentHelper.convertToMap(XContentType.JSON.xContent(), inputStream1, true);
                     } else {
-                        throw new ElasticsearchExporterException(
-                                "Failed to find index template in classpath " + filename);
+                        throw new ElasticsearchExporterException("Failed to find index template in classpath " + filename);
                     }
                 } catch (IOException e) {
-                    throw new ElasticsearchExporterException(
-                            "Failed to load index template from classpath " + filename, e);
+                    throw new ElasticsearchExporterException("Failed to load index template from classpath " + filename, e);
                 }
                 template1.put("index_patterns", Collections.singletonList("zeebe-payments" + INDEX_DELIMITER + "*"));
                 template1.put("aliases", Collections.singletonMap("zeebe-payments", Collections.EMPTY_MAP));
@@ -265,8 +250,7 @@ public class ElasticsearchClient {
                 putIndexTemplate(request);
             }
         }
-        PutIndexTemplateRequest request =
-                new PutIndexTemplateRequest(templateName).source(template);
+        PutIndexTemplateRequest request = new PutIndexTemplateRequest(templateName).source(template);
 
         return putIndexTemplate(request);
     }
@@ -276,10 +260,7 @@ public class ElasticsearchClient {
      */
     private boolean putIndexTemplate(PutIndexTemplateRequest putIndexTemplateRequest) {
         try {
-            return client
-                    .indices()
-                    .putTemplate(putIndexTemplateRequest, RequestOptions.DEFAULT)
-                    .isAcknowledged();
+            return client.indices().putTemplate(putIndexTemplateRequest, RequestOptions.DEFAULT).isAcknowledged();
         } catch (ElasticsearchException exception) {
             throw new ElasticsearchExporterException("Failed to Connect ES", exception);
         } catch (IOException e) {
@@ -304,25 +285,21 @@ public class ElasticsearchClient {
                 HttpHost httpHost = urlToHttpHost(elasticUrl);
                 SSLContext finalSslContext = sslContext;
                 builder = RestClient.builder(httpHost)
-                        .setHttpClientConfigCallback(httpClientBuilder -> httpClientBuilder
-                                .setSSLContext(finalSslContext)
-                                .setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE)
-                                .setDefaultCredentialsProvider(credentialsProvider));
+                        .setHttpClientConfigCallback(httpClientBuilder -> httpClientBuilder.setSSLContext(finalSslContext)
+                                .setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE).setDefaultCredentialsProvider(credentialsProvider));
             } else {
                 HttpHost httpHost = urlToHttpHost(elasticUrl);
-                builder = RestClient.builder(httpHost)
-                        .setHttpClientConfigCallback(new RestClientBuilder.HttpClientConfigCallback() {
-                            @Override
-                            public HttpAsyncClientBuilder customizeHttpClient(HttpAsyncClientBuilder httpClientBuilder) {
-                                return httpClientBuilder
-                                        .setDefaultCredentialsProvider(credentialsProvider);
-                            }
-                        });
+                builder = RestClient.builder(httpHost).setHttpClientConfigCallback(new RestClientBuilder.HttpClientConfigCallback() {
+
+                    @Override
+                    public HttpAsyncClientBuilder customizeHttpClient(HttpAsyncClientBuilder httpClientBuilder) {
+                        return httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider);
+                    }
+                });
             }
         } else {
             HttpHost httpHost = urlToHttpHost(elasticUrl);
-            builder =
-                    RestClient.builder(httpHost).setHttpClientConfigCallback(this::setHttpClientConfigCallback);
+            builder = RestClient.builder(httpHost).setHttpClientConfigCallback(this::setHttpClientConfigCallback);
         }
         return new RestHighLevelClient(builder);
     }
@@ -368,11 +345,7 @@ public class ElasticsearchClient {
     private String indexPrefixForValueType(ExtendedValueType valueType) {
         String version = VersionUtil.getVersionLowerCase();
 
-        return indexPrefix
-                + INDEX_DELIMITER
-                + valueTypeToString(valueType)
-                + INDEX_DELIMITER
-                + version;
+        return indexPrefix + INDEX_DELIMITER + valueTypeToString(valueType) + INDEX_DELIMITER + version;
     }
 
     private static String valueTypeToString(ExtendedValueType extendedValueType) {
