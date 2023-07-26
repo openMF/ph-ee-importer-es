@@ -15,20 +15,20 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker
-#       - slack/notify:
-#           event: fail
-#           mentions: '@here'
-#           template: basic_fail_1
-#       - slack/notify:
-#           event: pass
-#           template: basic_success_1
+      #       - slack/notify:
+      #           event: fail
+      #           mentions: '@here'
+      #           template: basic_fail_1
+      #       - slack/notify:
+      #           event: pass
+      #           template: basic_success_1
       - run: ./gradlew clean bootJar
       - aws-ecr/build-and-push-image:
           aws-access-key-id: AWS_ACCESS_KEY_ID
           aws-secret-access-key: AWS_SECRET_ACCESS_KEY
           extra-build-args: '--compress'
           push-image: true
-          region: ap-south-1
+          region: "$REGION"
           registry-id: AWS_REGISTRY_ID
           repo: ph-es-importer
           repo-scan-on-push: true
