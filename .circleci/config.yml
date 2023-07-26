@@ -15,13 +15,13 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker
-      #       - slack/notify:
-      #           event: fail
-      #           mentions: '@here'
-      #           template: basic_fail_1
-      #       - slack/notify:
-      #           event: pass
-      #           template: basic_success_1
+#       - slack/notify:
+#           event: fail
+#           mentions: '@here'
+#           template: basic_fail_1
+#       - slack/notify:
+#           event: pass
+#           template: basic_success_1
       - run: ./gradlew clean bootJar
       - aws-ecr/build-and-push-image:
           aws-access-key-id: AWS_ACCESS_KEY_ID
