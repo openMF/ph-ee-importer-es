@@ -87,9 +87,5 @@
             <id>central</id>
             <url>https://repo.maven.apache.org/maven2</url>
         </repository>
-        <repository>
-            <id>fyn-libs-snapshot-local</id>
-            <url>https://fynarfin.jfrog.io/artifactory/fyn-libs-snapshot-local/</url>
-        </repository>
     </repositories>
 </project>
