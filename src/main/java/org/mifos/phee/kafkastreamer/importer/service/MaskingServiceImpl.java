@@ -40,6 +40,7 @@ public class MaskingServiceImpl implements MaskingService {
             log.debug("Inside CHANNEL_REQUEST condition");
             String valueStringifiedJsonString = value.getString(KafkaVariables.VALUE);
             JSONObject channelRequest = getJsonObjectFromStringifiedJson(valueStringifiedJsonString);
+            log.info("Channel Request Record: {}",channelRequest);
             String payerPartyIdentifier = channelRequest.getJSONObject(KafkaVariables.PAYER).getJSONObject(KafkaVariables.PARTY_ID_INFO)
                     .getString(KafkaVariables.PARTY_IDENTIFIER);
             String payeePartyIdentifier = channelRequest.getJSONObject(KafkaVariables.PAYEE).getJSONObject(KafkaVariables.PARTY_ID_INFO)
