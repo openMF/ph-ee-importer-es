@@ -4,20 +4,6 @@ import io.prometheus.client.Histogram;
 import io.zeebe.exporter.ElasticsearchExporterException;
 import io.zeebe.exporter.ElasticsearchMetrics;
 import io.zeebe.util.VersionUtil;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.security.KeyManagementException;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.time.Instant;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
-import java.util.Collections;
-import java.util.Map;
-import javax.annotation.PostConstruct;
-import javax.net.ssl.SSLContext;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -49,7 +35,21 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.support.PeriodicTrigger;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
+
+import javax.annotation.PostConstruct;
+import javax.net.ssl.SSLContext;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.util.Collections;
+import java.util.Map;
 
 @Component
 public class ElasticsearchClient {
@@ -96,10 +96,32 @@ public class ElasticsearchClient {
     private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd").withZone(ZoneOffset.UTC);
     private BulkRequest bulkRequest = new BulkRequest();
 
+    private static HttpHost urlToHttpHost(String url) {
+        URI uri;
+        try {
+            uri = new URI(url);
+        } catch (URISyntaxException e) {
+            throw new ElasticsearchExporterException("Failed to parse url " + url, e);
+        }
+
+        return new HttpHost(uri.getHost(), uri.getPort(), uri.getScheme());
+    }
+
+    private static String valueTypeToString(ExtendedValueType extendedValueType) {
+        if (extendedValueType.name().equalsIgnoreCase("process_instance")) {
+            extendedValueType = ExtendedValueType.WORKFLOW_INSTANCE;
+        }
+        return extendedValueType.name().toLowerCase().replaceAll("_", "-");
+    }
+
+    private static String indexTemplateForValueType(ExtendedValueType valueType) {
+        return String.format(INDEX_TEMPLATE_FILENAME_PATTERN, valueTypeToString(valueType));
+    }
+
     @PostConstruct
     public void setup() {
         this.client = createClient();
-        taskScheduler.schedule(this::flush, new PeriodicTrigger(2000));
+        taskScheduler.schedule(this::flush, new PeriodicTrigger(5000));
     }
 
     public void close() throws IOException {
@@ -311,17 +333,6 @@ public class ElasticsearchClient {
         return builder;
     }
 
-    private static HttpHost urlToHttpHost(String url) {
-        URI uri;
-        try {
-            uri = new URI(url);
-        } catch (URISyntaxException e) {
-            throw new ElasticsearchExporterException("Failed to parse url " + url, e);
-        }
-
-        return new HttpHost(uri.getHost(), uri.getPort(), uri.getScheme());
-    }
-
     protected String indexFor(JSONObject record) {
         Instant timestamp = Instant.ofEpochMilli(record.getLong("timestamp"));
         return indexPrefixForValueTypeWithDelimiter(ExtendedValueType.valueOf(record.getString("valueType"))) + formatter.format(timestamp);
@@ -347,16 +358,5 @@ public class ElasticsearchClient {
         String version = VersionUtil.getVersionLowerCase();
 
         return indexPrefix + INDEX_DELIMITER + valueTypeToString(valueType) + INDEX_DELIMITER + version;
-    }
-
-    private static String valueTypeToString(ExtendedValueType extendedValueType) {
-        if (extendedValueType.name().equalsIgnoreCase("process_instance")) {
-            extendedValueType = ExtendedValueType.WORKFLOW_INSTANCE;
-        }
-        return extendedValueType.name().toLowerCase().replaceAll("_", "-");
-    }
-
-    private static String indexTemplateForValueType(ExtendedValueType valueType) {
-        return String.format(INDEX_TEMPLATE_FILENAME_PATTERN, valueTypeToString(valueType));
     }
 }
