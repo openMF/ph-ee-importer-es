@@ -47,7 +47,8 @@ public class MaskingServiceImpl implements MaskingService {
             fieldsRequiredMasking.add(KafkaVariables.PAYER);
             fieldsRequiredMasking.add(KafkaVariables.PAYEE);
 
-            if(!AesUtil.checkForMaskingFields(channelRequest,fieldsRequiredMasking)){
+            if(AesUtil.checkForMaskingFields(channelRequest,fieldsRequiredMasking)){
+                log.info("Hello World");
                 return rawData;
             }
             String payerPartyIdentifier = channelRequest.getJSONObject(KafkaVariables.PAYER).getJSONObject(KafkaVariables.PARTY_ID_INFO)
@@ -73,7 +74,7 @@ public class MaskingServiceImpl implements MaskingService {
             fieldsRequiredMasking.add(KafkaVariables.DEBIT_PARTY);
             fieldsRequiredMasking.add(KafkaVariables.CREDIT_PARTY);
 
-            if(!AesUtil.checkForMaskingFields(channelGsmaRequest,fieldsRequiredMasking)){
+            if(AesUtil.checkForMaskingFields(channelGsmaRequest,fieldsRequiredMasking)){
                 return rawData;
             }
 

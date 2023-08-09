@@ -71,10 +71,10 @@ public class AesUtil {
     public static boolean checkForMaskingFields(JSONObject jsonObject, List<String> fieldsRequiredMasking) {
         for (String field : fieldsRequiredMasking) {
             if (!jsonObject.has(field)) {
-                return false;
+                return true;
             }
         }
-        return true;
+        return false;
     }
 
 }
