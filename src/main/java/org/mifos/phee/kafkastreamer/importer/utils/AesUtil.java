@@ -2,11 +2,13 @@ package org.mifos.phee.kafkastreamer.importer.utils;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.util.List;
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import org.apache.commons.codec.binary.Base64;
+import org.json.JSONObject;
 
 public class AesUtil {
 
@@ -64,9 +66,17 @@ public class AesUtil {
     // generates and returns the string encoded AES key
     public static String generateSecretKey() throws NoSuchAlgorithmException {
         KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
-        keyGenerator.init(128, new SecureRandom());
+        keyGenerator.init(256, new SecureRandom());
         SecretKey key = keyGenerator.generateKey();
         return base64Encode(key.getEncoded());
+    }
+    public static boolean checkForMaskingFields(JSONObject jsonObject, List<String> fieldsRequiredMasking) {
+        for (String field : fieldsRequiredMasking) {
+            if (jsonObject.has(field)) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

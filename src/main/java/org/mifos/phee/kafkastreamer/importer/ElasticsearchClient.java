@@ -98,7 +98,7 @@ public class ElasticsearchClient {
     @PostConstruct
     public void setup() {
         this.client = createClient();
-        taskScheduler.schedule(this::flush, new PeriodicTrigger(2000));
+        taskScheduler.schedule(this::flush, new PeriodicTrigger(5000));
     }
 
     public void close() throws IOException {
