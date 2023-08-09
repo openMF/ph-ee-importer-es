@@ -99,25 +99,23 @@ public class ElasticsearchClient {
     @PostConstruct
     public void setup() {
         this.client = createClient();
-        taskScheduler.schedule(this::flush, new PeriodicTrigger(6000));
+        taskScheduler.schedule(this::flush, new PeriodicTrigger(2000));
     }
 
     public void close() throws IOException {
         client.close();
     }
-    @Transactional
+
     public void bulk(IndexRequest indexRequest) {
         logger.info("Calling bulk request for insert");
         bulkRequest.add(indexRequest);
     }
 
-    @Transactional
     public void bulk(UpdateRequest updateRequest) {
         logger.info("Calling bulk request for upsert");
         bulkRequest.add(updateRequest);
     }
 
-    @Transactional
     public void index(JSONObject record) {
         if (metrics == null) {
             metrics = new ElasticsearchMetrics(record.getInt("partitionId"));
@@ -132,7 +130,6 @@ public class ElasticsearchClient {
         bulk(request);
     }
 
-    @Transactional
     public void upsertToReportingIndex(JSONObject record) {
         JSONObject newRecord = new JSONObject();
         if (record.getString("valueType").equalsIgnoreCase("variable")) {

@@ -27,16 +27,6 @@
               "type": "text"
             }
           }
-        },
-        {
-          "strings": {
-            "match_mapping_type": "object",
-            "path_unmatch": "request.*",
-            "match": "*",
-            "mapping": {
-              "type": "object"
-            }
-          }
         }
       ],
       "properties": {
@@ -48,7 +38,6 @@
         },
         "ams": {
           "type": "text"
-
         },
         "clientCorrelationId": {
           "type": "text",

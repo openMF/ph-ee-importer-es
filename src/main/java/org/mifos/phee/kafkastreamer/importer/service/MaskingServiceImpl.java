@@ -50,7 +50,6 @@ public class MaskingServiceImpl implements MaskingService {
             if(!AesUtil.checkForMaskingFields(channelRequest,fieldsRequiredMasking)){
                 return rawData;
             }
-//            {"amount":"100","parentWorkflowId":"12345667","phoneNumber":"+15005550012","messageType":"Success","deliveryMessage":"HELLO WORLD","type":"sms","transactionId":"123455","account":"1234","originDate":1675404746398}
             String payerPartyIdentifier = channelRequest.getJSONObject(KafkaVariables.PAYER).getJSONObject(KafkaVariables.PARTY_ID_INFO)
                     .getString(KafkaVariables.PARTY_IDENTIFIER);
             String payeePartyIdentifier = channelRequest.getJSONObject(KafkaVariables.PAYEE).getJSONObject(KafkaVariables.PARTY_ID_INFO)
