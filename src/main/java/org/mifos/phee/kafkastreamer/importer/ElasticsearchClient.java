@@ -49,6 +49,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.support.PeriodicTrigger;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 public class ElasticsearchClient {
@@ -98,7 +99,7 @@ public class ElasticsearchClient {
     @PostConstruct
     public void setup() {
         this.client = createClient();
-        taskScheduler.schedule(this::flush, new PeriodicTrigger(10000));
+        taskScheduler.schedule(this::flush, new PeriodicTrigger(6000));
     }
 
     public void close() throws IOException {
@@ -115,6 +116,7 @@ public class ElasticsearchClient {
         bulkRequest.add(updateRequest);
     }
 
+    @Transactional
     public void index(JSONObject record) {
         if (metrics == null) {
             metrics = new ElasticsearchMetrics(record.getInt("partitionId"));
@@ -129,6 +131,7 @@ public class ElasticsearchClient {
         bulk(request);
     }
 
+    @Transactional
     public void upsertToReportingIndex(JSONObject record) {
         JSONObject newRecord = new JSONObject();
         if (record.getString("valueType").equalsIgnoreCase("variable")) {
