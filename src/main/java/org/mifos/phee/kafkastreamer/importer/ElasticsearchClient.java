@@ -105,12 +105,13 @@ public class ElasticsearchClient {
     public void close() throws IOException {
         client.close();
     }
-
+    @Transactional
     public void bulk(IndexRequest indexRequest) {
         logger.info("Calling bulk request for insert");
         bulkRequest.add(indexRequest);
     }
 
+    @Transactional
     public void bulk(UpdateRequest updateRequest) {
         logger.info("Calling bulk request for upsert");
         bulkRequest.add(updateRequest);
