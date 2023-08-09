@@ -1,9 +1,5 @@
 package org.mifos.phee.kafkastreamer.importer.service;
 
-import static org.apache.commons.text.StringEscapeUtils.unescapeJava;
-
-import java.util.ArrayList;
-import java.util.List;
 import org.json.JSONObject;
 import org.mifos.phee.kafkastreamer.importer.KafkaVariables;
 import org.mifos.phee.kafkastreamer.importer.utils.AesUtil;
@@ -11,6 +7,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.apache.commons.text.StringEscapeUtils.unescapeJava;
 
 @Service
 public class MaskingServiceImpl implements MaskingService {
@@ -41,16 +42,15 @@ public class MaskingServiceImpl implements MaskingService {
             log.debug("Inside CHANNEL_REQUEST condition");
             String valueStringifiedJsonString = value.getString(KafkaVariables.VALUE);
             JSONObject channelRequest = getJsonObjectFromStringifiedJson(valueStringifiedJsonString);
-            log.info("Channel Request Record: {}",channelRequest);
+            log.info("Channel Request Record: {}", channelRequest);
 
-            List<String>fieldsRequiredMasking=new ArrayList<>();
+            List<String> fieldsRequiredMasking = new ArrayList<>();
             fieldsRequiredMasking.add(KafkaVariables.PAYER);
             fieldsRequiredMasking.add(KafkaVariables.PAYEE);
 
-            if(!AesUtil.checkForMaskingFields(channelRequest,fieldsRequiredMasking)){
+            if (!AesUtil.checkForMaskingFields(channelRequest, fieldsRequiredMasking)) {
                 return rawData;
             }
-//            {"amount":"100","parentWorkflowId":"12345667","phoneNumber":"+15005550012","messageType":"Success","deliveryMessage":"HELLO WORLD","type":"sms","transactionId":"123455","account":"1234","originDate":1675404746398}
             String payerPartyIdentifier = channelRequest.getJSONObject(KafkaVariables.PAYER).getJSONObject(KafkaVariables.PARTY_ID_INFO)
                     .getString(KafkaVariables.PARTY_IDENTIFIER);
             String payeePartyIdentifier = channelRequest.getJSONObject(KafkaVariables.PAYEE).getJSONObject(KafkaVariables.PARTY_ID_INFO)
@@ -70,11 +70,11 @@ public class MaskingServiceImpl implements MaskingService {
             String valueStringifiedJsonString = value.getString(KafkaVariables.VALUE);
             JSONObject channelGsmaRequest = getJsonObjectFromStringifiedJson(valueStringifiedJsonString);
 
-            List<String>fieldsRequiredMasking=new ArrayList<>();
+            List<String> fieldsRequiredMasking = new ArrayList<>();
             fieldsRequiredMasking.add(KafkaVariables.DEBIT_PARTY);
             fieldsRequiredMasking.add(KafkaVariables.CREDIT_PARTY);
 
-            if(!AesUtil.checkForMaskingFields(channelGsmaRequest,fieldsRequiredMasking)){
+            if (!AesUtil.checkForMaskingFields(channelGsmaRequest, fieldsRequiredMasking)) {
                 return rawData;
             }
 
