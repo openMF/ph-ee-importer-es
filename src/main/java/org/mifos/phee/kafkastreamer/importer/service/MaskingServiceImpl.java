@@ -41,15 +41,11 @@ public class MaskingServiceImpl implements MaskingService {
             log.debug("Inside CHANNEL_REQUEST condition");
             String valueStringifiedJsonString = value.getString(KafkaVariables.VALUE);
             JSONObject channelRequest = getJsonObjectFromStringifiedJson(valueStringifiedJsonString);
-            log.info("Channel Request Record: {}",channelRequest);
 
             List<String>fieldsRequiredMasking=new ArrayList<>();
             fieldsRequiredMasking.add(KafkaVariables.PAYER);
             fieldsRequiredMasking.add(KafkaVariables.PAYEE);
-            log.info("Hello World 1");
-            log.info("Hello World 11:{}",channelRequest);
             if(AesUtil.checkForMaskingFields(channelRequest,fieldsRequiredMasking)){
-                log.info("Hello World2");
                 return rawData;
             }
             String payerPartyIdentifier = channelRequest.getJSONObject(KafkaVariables.PAYER).getJSONObject(KafkaVariables.PARTY_ID_INFO)
