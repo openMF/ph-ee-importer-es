@@ -46,9 +46,9 @@ public class MaskingServiceImpl implements MaskingService {
             List<String>fieldsRequiredMasking=new ArrayList<>();
             fieldsRequiredMasking.add(KafkaVariables.PAYER);
             fieldsRequiredMasking.add(KafkaVariables.PAYEE);
-
+            log.info("Hello World 1");
             if(AesUtil.checkForMaskingFields(channelRequest,fieldsRequiredMasking)){
-                log.info("Hello World");
+                log.info("Hello World2");
                 return rawData;
             }
             String payerPartyIdentifier = channelRequest.getJSONObject(KafkaVariables.PAYER).getJSONObject(KafkaVariables.PARTY_ID_INFO)
