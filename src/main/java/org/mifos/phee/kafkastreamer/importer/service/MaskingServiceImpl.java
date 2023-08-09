@@ -47,6 +47,7 @@ public class MaskingServiceImpl implements MaskingService {
             fieldsRequiredMasking.add(KafkaVariables.PAYER);
             fieldsRequiredMasking.add(KafkaVariables.PAYEE);
             log.info("Hello World 1");
+            log.info("Hello World 11:{}",channelRequest);
             if(AesUtil.checkForMaskingFields(channelRequest,fieldsRequiredMasking)){
                 log.info("Hello World2");
                 return rawData;
