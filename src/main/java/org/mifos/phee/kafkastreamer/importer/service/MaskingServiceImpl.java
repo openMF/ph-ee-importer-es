@@ -61,15 +61,15 @@ public class MaskingServiceImpl implements MaskingService {
                     JSONArray payeeArray = (JSONArray) payeeValue;
 
                     JSONObject payerObject = payerArray.getJSONObject(0);
-                    payerPartyIdentifier = payerObject.getString(KafkaVariables.PARTY_IDENTIFIER);
+                    payerPartyIdentifier = payerObject.getString(KafkaVariables.PARTY_ID_IDENTIFIER);
                     JSONObject payeeObject = payeeArray.getJSONObject(0);
-                    payeePartyIdentifier = payeeObject.getString(KafkaVariables.PARTY_IDENTIFIER);
+                    payeePartyIdentifier = payeeObject.getString(KafkaVariables.PARTY_ID_IDENTIFIER);
 
                     payerPartyIdentifier = encryptData(payerPartyIdentifier);
                     payeePartyIdentifier = encryptData(payeePartyIdentifier);
 
-                    payerObject.put(KafkaVariables.PARTY_IDENTIFIER, payerPartyIdentifier);
-                    payeeObject.put(KafkaVariables.PARTY_IDENTIFIER, payeePartyIdentifier);
+                    payerObject.put(KafkaVariables.PARTY_ID_IDENTIFIER, payerPartyIdentifier);
+                    payeeObject.put(KafkaVariables.PARTY_ID_IDENTIFIER, payeePartyIdentifier);
 
                 } else if (payerValue instanceof JSONObject) {
                     JSONObject payerObject = (JSONObject) payerValue;
