@@ -2,10 +2,14 @@ package org.mifos.phee.kafkastreamer.importer.utils;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.KeySpec;
 import java.util.List;
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 import org.apache.commons.codec.binary.Base64;
 import org.json.JSONObject;
@@ -57,10 +61,20 @@ public class AesUtil {
         return Base64.decodeBase64(base64EncodedString);
     }
 
-    // get instance of class [SecretKey] using the string format of the key
-    public static SecretKey getSecretKey(String key) {
+    public static SecretKey deriveKey(String key, byte[] salt, int iterationCount, int keyLength) throws NoSuchAlgorithmException, InvalidKeySpecException {
+        SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
+        KeySpec spec = new PBEKeySpec(key.toCharArray(), salt, iterationCount, keyLength);
+        SecretKey tmp = factory.generateSecret(spec);
+        return new SecretKeySpec(tmp.getEncoded(), "AES");
+    }
+
+    public static SecretKey getSecretKey(String key) throws NoSuchAlgorithmException, InvalidKeySpecException {
         byte[] aesByte = base64Decode(key);
-        return new SecretKeySpec(aesByte, 0, aesByte.length,"AES");
+        int iterationCount = 10000;
+        int keyLength = 256;
+
+        SecretKey newKey = deriveKey(key, aesByte, iterationCount, keyLength);
+        return newKey;
     }
 
     // generates and returns the string encoded AES key
