@@ -68,10 +68,11 @@ public class AesUtil {
         return new SecretKeySpec(tmp.getEncoded(), "AES");
     }
 
+    // get instance of class [SecretKey] using the string format of the key
     public static SecretKey getSecretKey(String key) throws NoSuchAlgorithmException, InvalidKeySpecException {
         byte[] aesByte = base64Decode(key);
         int iterationCount = 10000;
-        int keyLength = 256;
+        int keyLength = 256; // adding key length
 
         SecretKey newKey = deriveKey(key, aesByte, iterationCount, keyLength);
         return newKey;
