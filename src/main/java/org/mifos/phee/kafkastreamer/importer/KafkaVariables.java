@@ -14,4 +14,5 @@ public class KafkaVariables {
     public static final String PARTY_IDENTIFIER = "partyIdentifier";
     public static final String DEBIT_PARTY = "debitParty";
     public static final String CREDIT_PARTY = "creditParty";
+    public static final String PARTY_ID_IDENTIFIER = "partyIdIdentifier";
 }

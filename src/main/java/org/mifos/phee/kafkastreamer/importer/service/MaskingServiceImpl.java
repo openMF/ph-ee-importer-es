@@ -4,6 +4,8 @@ import static org.apache.commons.text.StringEscapeUtils.unescapeJava;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.mifos.phee.kafkastreamer.importer.KafkaVariables;
 import org.mifos.phee.kafkastreamer.importer.utils.AesUtil;
@@ -48,20 +50,43 @@ public class MaskingServiceImpl implements MaskingService {
             if(AesUtil.checkForMaskingFields(channelRequest,fieldsRequiredMasking)){
                 return rawData;
             }
+            String payerPartyIdentifier = "", payeePartyIdentifier = "";
 
-            String payerPartyIdentifier = channelRequest.getJSONObject(KafkaVariables.PAYER).getJSONObject(KafkaVariables.PARTY_ID_INFO)
-                    .getString(KafkaVariables.PARTY_IDENTIFIER);
-            String payeePartyIdentifier = channelRequest.getJSONObject(KafkaVariables.PAYEE).getJSONObject(KafkaVariables.PARTY_ID_INFO)
-                    .getString(KafkaVariables.PARTY_IDENTIFIER);
+            if (channelRequest.has("payer")) {
+                Object payerValue = channelRequest.get("payer");
+                Object payeeValue = channelRequest.get("payee");
 
-            payerPartyIdentifier = encryptData(payerPartyIdentifier);
-            payeePartyIdentifier = encryptData(payeePartyIdentifier);
+                if (payerValue instanceof JSONArray) {
+                    JSONArray payerArray = (JSONArray) payerValue;
+                    JSONArray payeeArray = (JSONArray) payeeValue;
 
-            channelRequest.getJSONObject(KafkaVariables.PAYER).getJSONObject(KafkaVariables.PARTY_ID_INFO)
-                    .put(KafkaVariables.PARTY_IDENTIFIER, payerPartyIdentifier);
-            channelRequest.getJSONObject(KafkaVariables.PAYEE).getJSONObject(KafkaVariables.PARTY_ID_INFO)
-                    .put(KafkaVariables.PARTY_IDENTIFIER, payeePartyIdentifier);
+                    JSONObject payerObject = payerArray.getJSONObject(0);
+                    payerPartyIdentifier = payerObject.getString(KafkaVariables.PARTY_ID_IDENTIFIER);
+                    JSONObject payeeObject = payeeArray.getJSONObject(0);
+                    payeePartyIdentifier = payeeObject.getString(KafkaVariables.PARTY_ID_IDENTIFIER);
 
+                    payerPartyIdentifier = encryptData(payerPartyIdentifier);
+                    payeePartyIdentifier = encryptData(payeePartyIdentifier);
+
+                    payerObject.put(KafkaVariables.PARTY_ID_IDENTIFIER, payerPartyIdentifier);
+                    payeeObject.put(KafkaVariables.PARTY_ID_IDENTIFIER, payeePartyIdentifier);
+                } else if (payerValue instanceof JSONObject) {
+                    JSONObject payerObject = (JSONObject) payerValue;
+                    JSONObject payeeObject = (JSONObject) payeeValue;
+                    payerPartyIdentifier = payerObject.getJSONObject(KafkaVariables.PARTY_ID_INFO)
+                            .getString(KafkaVariables.PARTY_IDENTIFIER);
+                    payeePartyIdentifier = payeeObject.getJSONObject(KafkaVariables.PARTY_ID_INFO)
+                            .getString(KafkaVariables.PARTY_IDENTIFIER);
+                    payerPartyIdentifier = encryptData(payerPartyIdentifier);
+                    payeePartyIdentifier = encryptData(payeePartyIdentifier);
+
+                    channelRequest.getJSONObject(KafkaVariables.PAYER).getJSONObject(KafkaVariables.PARTY_ID_INFO)
+                            .put(KafkaVariables.PARTY_IDENTIFIER, payerPartyIdentifier);
+                    channelRequest.getJSONObject(KafkaVariables.PAYEE).getJSONObject(KafkaVariables.PARTY_ID_INFO)
+                            .put(KafkaVariables.PARTY_IDENTIFIER, payeePartyIdentifier);
+                }
+
+            }
             value.put(KafkaVariables.VALUE, channelRequest.toString());
         } else if (name.equalsIgnoreCase(KafkaVariables.CHANNEL_GSMA_REQUEST)) {
             log.debug("Inside CHANNEL_GSMA_REQUEST condition");
