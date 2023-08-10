@@ -70,7 +70,6 @@ public class MaskingServiceImpl implements MaskingService {
 
                     payerObject.put(KafkaVariables.PARTY_ID_IDENTIFIER, payerPartyIdentifier);
                     payeeObject.put(KafkaVariables.PARTY_ID_IDENTIFIER, payeePartyIdentifier);
-
                 } else if (payerValue instanceof JSONObject) {
                     JSONObject payerObject = (JSONObject) payerValue;
                     JSONObject payeeObject = (JSONObject) payeeValue;
