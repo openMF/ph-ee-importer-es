@@ -60,7 +60,7 @@ public class AesUtil {
     // get instance of class [SecretKey] using the string format of the key
     public static SecretKey getSecretKey(String key) {
         byte[] aesByte = base64Decode(key);
-        return new SecretKeySpec(aesByte, "AES");
+        return new SecretKeySpec(aesByte, 0, aesByte.length,"AES");
     }
 
     // generates and returns the string encoded AES key
