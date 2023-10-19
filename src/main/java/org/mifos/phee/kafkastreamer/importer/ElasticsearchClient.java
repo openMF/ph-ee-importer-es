@@ -177,20 +177,22 @@ public class ElasticsearchClient {
         return "8.1.8";
     }
 
-    public synchronized int flush() {
-        boolean success;
-        int bulkSize = bulkRequest.numberOfActions();
-        if (bulkSize > 0) {
-            try {
+    public int flush() {
+        synchronized (bulkRequest) {
+            boolean success;
+            int bulkSize = bulkRequest.numberOfActions();
+            if (bulkSize > 0) {
+                try {
 //                metrics.recordBulkSize(bulkSize);
-                BulkResponse responses = exportBulk();
-                success = checkBulkResponses(responses);
-            } catch (IOException e) {
-                throw new RuntimeException("Failed to flush bulk", e);
-            }
+                    BulkResponse responses = exportBulk();
+                    success = checkBulkResponses(responses);
+                } catch (IOException e) {
+                    throw new RuntimeException("Failed to flush bulk", e);
+                }
 
-            if (success) { // all records where flushed, create new bulk request, otherwise retry next time
-                bulkRequest = new BulkRequest();
+                if (success) { // all records where flushed, create new bulk request, otherwise retry next time
+                    bulkRequest = new BulkRequest();
+                }
             }
         }
 
