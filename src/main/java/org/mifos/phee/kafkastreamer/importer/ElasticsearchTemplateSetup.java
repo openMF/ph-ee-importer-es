@@ -1,6 +1,7 @@
 package org.mifos.phee.kafkastreamer.importer;
 
 import io.camunda.zeebe.exporter.ElasticsearchExporterConfiguration;
+import io.camunda.zeebe.protocol.record.ValueType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,14 +33,11 @@ public class ElasticsearchTemplateSetup {
             createRootIndexTemplate();
 
             if (indexConfiguration.incident) {
-                createValueIndexTemplate(ExtendedValueType.INCIDENT);
+                createValueIndexTemplate(ValueType.INCIDENT);
             }
             if (indexConfiguration.variable) {
-                createValueIndexTemplate(ExtendedValueType.VARIABLE);
+                createValueIndexTemplate(ValueType.VARIABLE);
             }
-//            if (indexConfiguration.workflowInstance) {
-//                createValueIndexTemplate(ExtendedValueType.WORKFLOW_INSTANCE);
-//            }
         }
     }
 
@@ -52,9 +50,9 @@ public class ElasticsearchTemplateSetup {
         }
     }
 
-    private void createValueIndexTemplate(final ExtendedValueType extendedValueType) {
-        if (!client.putIndexTemplate(extendedValueType)) {
-            logger.warn("Put index template for value type {} was not acknowledged", extendedValueType);
+    private void createValueIndexTemplate(ValueType valueType) {
+        if (!client.putIndexTemplate(valueType)) {
+            logger.warn("Put index template for value type {} was not acknowledged", valueType);
         }
     }
 }
