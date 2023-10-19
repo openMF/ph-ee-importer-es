@@ -10,6 +10,7 @@ management:
 
 kafka:
   brokers: "kafka:9092"
+  msk: false
 
 importer:
   kafka:

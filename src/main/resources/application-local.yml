@@ -1,0 +1,3 @@
+importer:
+    elasticsearch:
+        url: "https://vpc-alluvial-internal-es-dev-5qrh46i4btdq6qeohhkudj66nq.eu-central-1.es.amazonaws.com:8443/"
