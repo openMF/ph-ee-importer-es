@@ -89,7 +89,7 @@ public class ElasticsearchClient {
 //    private ElasticsearchMetrics metrics;
 
     private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd").withZone(ZoneOffset.UTC);
-    private static ThreadLocal<BulkRequest> bulkRequest = ThreadLocal.withInitial(BulkRequest::new);
+    private BulkRequest bulkRequest = new BulkRequest();
 
     @PostConstruct
     public void setup() {
@@ -103,12 +103,12 @@ public class ElasticsearchClient {
 
     public void bulk(IndexRequest indexRequest) {
         logger.trace("Calling bulk request for insert");
-        bulkRequest.get().add(indexRequest);
+        bulkRequest.add(indexRequest);
     }
 
     public void bulk(UpdateRequest updateRequest) {
         logger.trace("Calling bulk request for upsert");
-        bulkRequest.get().add(updateRequest);
+        bulkRequest.add(updateRequest);
     }
 
     public void index(JSONObject record) {
@@ -179,7 +179,7 @@ public class ElasticsearchClient {
 
     public synchronized int flush() {
         boolean success;
-        int bulkSize = bulkRequest.get().numberOfActions();
+        int bulkSize = bulkRequest.numberOfActions();
         if (bulkSize > 0) {
             try {
 //                metrics.recordBulkSize(bulkSize);
@@ -190,7 +190,7 @@ public class ElasticsearchClient {
             }
 
             if (success) { // all records where flushed, create new bulk request, otherwise retry next time
-                bulkRequest.set(new BulkRequest());
+                bulkRequest = new BulkRequest();
             }
         }
 
@@ -199,7 +199,7 @@ public class ElasticsearchClient {
 
     private BulkResponse exportBulk() throws IOException {
 //        try (Histogram.Timer timer = metrics.measureFlushDuration()) {
-        return client.bulk(bulkRequest.get(), org.opensearch.client.RequestOptions.DEFAULT);
+        return client.bulk(bulkRequest, org.opensearch.client.RequestOptions.DEFAULT);
 //        }
     }
 
@@ -215,7 +215,7 @@ public class ElasticsearchClient {
     }
 
     public boolean shouldFlush() {
-        return bulkRequest.get().numberOfActions() >= bulkSize;
+        return bulkRequest.numberOfActions() >= bulkSize;
     }
 
     /**
@@ -345,6 +345,14 @@ public class ElasticsearchClient {
     protected String indexFor(JSONObject record) {
         Instant timestamp = Instant.ofEpochMilli(record.getLong("timestamp"));
         return indexPrefixForValueTypeWithDelimiter(ValueType.valueOf(record.getString("valueType"))) + formatter.format(timestamp);
+    }
+
+    protected String idFor(JSONObject record) {
+        return record.getInt("partitionId") + "-" + record.getLong("position");
+    }
+
+    protected String typeFor(JSONObject record) {
+        return "_doc";
     }
 
     protected String indexPrefixForValueTypeWithDelimiter(ValueType ValueType) {
