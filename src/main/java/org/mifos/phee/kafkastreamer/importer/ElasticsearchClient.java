@@ -90,6 +90,7 @@ public class ElasticsearchClient {
     @PostConstruct
     public void setup() {
         this.client = createClient();
+        logger.info("configured to using Elasticseach at: {}", elasticUrl);
         taskScheduler.schedule(() -> bulkRequestCollector.flush(client), new PeriodicTrigger(2000));
     }
 
