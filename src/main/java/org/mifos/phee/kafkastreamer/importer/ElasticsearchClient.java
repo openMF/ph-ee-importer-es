@@ -82,6 +82,9 @@ public class ElasticsearchClient {
     @Autowired
     private BulkRequestCollector bulkRequestCollector;
 
+    @Autowired
+    private JsonCleaner jsonCleaner;
+
     private RestHighLevelClient client;
 //    private ElasticsearchMetrics metrics;
 
@@ -114,8 +117,10 @@ public class ElasticsearchClient {
 //        logger.trace("Pushing index for " + indexFor(record));
 //        IndexRequest request = new IndexRequest(indexFor(record), typeFor(record), idFor(record))
 
+        String source = jsonCleaner.sanitize(record).toString();
+
         IndexRequest request = new IndexRequest(indexFor(record))
-                .source(record.toString(), XContentType.JSON)
+                .source(source, XContentType.JSON)
                 .routing(Integer.toString(record.getInt("partitionId")));
         logger.trace("Calling bulk request for insert");
         bulkRequestCollector.add(request);
@@ -125,6 +130,7 @@ public class ElasticsearchClient {
             logger.info("flushed {} records to ES", flushed);
         }
     }
+
 
     public void upsertToReportingIndex(JSONObject record) {
         JSONObject newRecord = new JSONObject();
@@ -256,12 +262,12 @@ public class ElasticsearchClient {
             final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
             credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(username, password));
             if (sslVerify) {
-                SSLContextBuilder sslBuilder = null;
+                SSLContextBuilder sslBuilder;
                 try {
                     sslBuilder = SSLContexts.custom().loadTrustMaterial(null, (x509Certificates, s) -> true);
                     sslContext = sslBuilder.build();
                 } catch (NoSuchAlgorithmException | KeyStoreException | KeyManagementException e) {
-                    e.printStackTrace();
+                    throw new RuntimeException(e);
                 }
                 HttpHost httpHost = urlToHttpHost(elasticUrl);
                 SSLContext finalSslContext = sslContext;
