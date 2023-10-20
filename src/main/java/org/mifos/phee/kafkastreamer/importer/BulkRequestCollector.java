@@ -57,19 +57,17 @@ public class BulkRequestCollector {
 
     private BulkResponse exportBulk(RestHighLevelClient client) throws IOException {
 //        try (Histogram.Timer timer = metrics.measureFlushDuration()) { .. }
-        return withWriteLock(readWriteLock, () -> {
-            try {
-                return client.bulk(bulkRequest, org.opensearch.client.RequestOptions.DEFAULT);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        });
+        return client.bulk(bulkRequest, org.opensearch.client.RequestOptions.DEFAULT);
     }
 
     public int flush(RestHighLevelClient client) {
-        boolean success;
         int bulkSize = bulkRequest.numberOfActions();
-        if (bulkSize > 0) {
+        if (bulkSize <= 0) {
+            return bulkSize;
+        }
+
+        return withWriteLock(readWriteLock, () -> {
+            boolean success;
             try {
 //                metrics.recordBulkSize(bulkSize);
                 BulkResponse responses = exportBulk(client);
@@ -81,9 +79,9 @@ public class BulkRequestCollector {
             if (success) { // all records where flushed, create new bulk request, otherwise retry next time
                 bulkRequest = new BulkRequest();
             }
-        }
 
-        return bulkSize;
+            return bulkSize;
+        });
     }
 
     public boolean shouldFlush() {
