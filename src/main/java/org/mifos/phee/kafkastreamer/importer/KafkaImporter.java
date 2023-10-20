@@ -21,11 +21,6 @@ public class KafkaImporter {
         logger.trace("from kafka: {}", data.toString(2));
 
         elasticsearchClient.index(data);
-
-        if (elasticsearchClient.shouldFlush()) {
-            int flushed = elasticsearchClient.flush();
-            logger.info("flushed {} records to ES", flushed);
-        }
     }
 
 }

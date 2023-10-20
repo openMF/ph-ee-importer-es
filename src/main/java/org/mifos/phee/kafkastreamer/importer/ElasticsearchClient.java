@@ -13,9 +13,6 @@ import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.http.ssl.SSLContexts;
 import org.json.JSONObject;
 import org.opensearch.OpenSearchException;
-import org.opensearch.action.bulk.BulkItemResponse;
-import org.opensearch.action.bulk.BulkRequest;
-import org.opensearch.action.bulk.BulkResponse;
 import org.opensearch.action.index.IndexRequest;
 import org.opensearch.action.update.UpdateRequest;
 import org.opensearch.client.RequestOptions;
@@ -55,9 +52,6 @@ public class ElasticsearchClient {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Value("${importer.elasticsearch.bulk-size}")
-    private Integer bulkSize;
-
     @Value("${importer.elasticsearch.url}")
     private String elasticUrl;
 
@@ -85,46 +79,50 @@ public class ElasticsearchClient {
     @Autowired
     private PaymentsIndexConfiguration paymentsIndexConfiguration;
 
+    @Autowired
+    private BulkRequestCollector bulkRequestCollector;
+
     private RestHighLevelClient client;
 //    private ElasticsearchMetrics metrics;
 
     private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd").withZone(ZoneOffset.UTC);
-    private BulkRequest bulkRequest = new BulkRequest();
 
     @PostConstruct
     public void setup() {
         this.client = createClient();
-        taskScheduler.schedule(this::flush, new PeriodicTrigger(2000));
+        taskScheduler.schedule(() -> bulkRequestCollector.flush(client), new PeriodicTrigger(2000));
     }
 
     public void close() throws IOException {
         client.close();
     }
 
-    public void bulk(IndexRequest indexRequest) {
-        logger.trace("Calling bulk request for insert");
-        bulkRequest.add(indexRequest);
-    }
-
     public void bulk(UpdateRequest updateRequest) {
         logger.trace("Calling bulk request for upsert");
-        bulkRequest.add(updateRequest);
+        bulkRequestCollector.add(updateRequest);
     }
 
     public void index(JSONObject record) {
 //        if (metrics == null) {
 //            metrics = new ElasticsearchMetrics(record.getInt("partitionId"));
 //        }
-        logger.trace("Getting index method called with record value type {}", record.getString("valueType"));
         if (reportingEnabled) {
+            logger.trace("Getting index method called with record value type {}", record.getString("valueType"));
             upsertToReportingIndex(record);
         }
-        logger.trace("Pushing index for " + indexFor(record));
+//        logger.trace("Pushing index for " + indexFor(record));
 //        IndexRequest request = new IndexRequest(indexFor(record), typeFor(record), idFor(record))
+
         IndexRequest request = new IndexRequest(indexFor(record))
                 .source(record.toString(), XContentType.JSON)
                 .routing(Integer.toString(record.getInt("partitionId")));
-        bulk(request);
+        logger.trace("Calling bulk request for insert");
+        bulkRequestCollector.add(request);
+
+        if (bulkRequestCollector.shouldFlush()) {
+            int flushed = bulkRequestCollector.flush(client);
+            logger.info("flushed {} records to ES", flushed);
+        }
     }
 
     public void upsertToReportingIndex(JSONObject record) {
@@ -177,48 +175,6 @@ public class ElasticsearchClient {
         return "8.1.8";
     }
 
-    public int flush() {
-        synchronized (bulkRequest) {
-            boolean success;
-            int bulkSize = bulkRequest.numberOfActions();
-            if (bulkSize > 0) {
-                try {
-//                metrics.recordBulkSize(bulkSize);
-                    BulkResponse responses = exportBulk();
-                    success = checkBulkResponses(responses);
-                } catch (IOException e) {
-                    throw new RuntimeException("Failed to flush bulk", e);
-                }
-
-                if (success) { // all records where flushed, create new bulk request, otherwise retry next time
-                    bulkRequest = new BulkRequest();
-                }
-            }
-        }
-
-        return bulkSize;
-    }
-
-    private BulkResponse exportBulk() throws IOException {
-//        try (Histogram.Timer timer = metrics.measureFlushDuration()) {
-        return client.bulk(bulkRequest, org.opensearch.client.RequestOptions.DEFAULT);
-//        }
-    }
-
-    private boolean checkBulkResponses(BulkResponse responses) {
-        for (BulkItemResponse response : responses) {
-            if (response.isFailed()) {
-                logger.warn("Failed to flush at least one bulk request {}", response.getFailureMessage());
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    public boolean shouldFlush() {
-        return bulkRequest.numberOfActions() >= bulkSize;
-    }
 
     /**
      * @return true if request was acknowledged
