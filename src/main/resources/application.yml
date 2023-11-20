@@ -11,6 +11,7 @@ management:
 kafka:
   brokers: "kafka:9092"
   msk: false
+  consumer-group-id: "importer-es"
 
 importer:
   kafka:

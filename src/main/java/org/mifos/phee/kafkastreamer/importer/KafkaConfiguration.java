@@ -33,6 +33,9 @@ public class KafkaConfiguration {
     @Value("${kafka.msk}")
     private boolean kafkaMsk;
 
+    @Value("kafka.consumer-group-id")
+    private String kafkaConsumerGroupId;
+
     @Bean
     KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<String, String>> kafkaListenerContainerFactory() {
         ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory<>();
@@ -49,12 +52,10 @@ public class KafkaConfiguration {
 
     @Bean
     public Map<String, Object> consumerConfigs() {
-        String hostname = buildKafkaClientId(logger);
-
         Map<String, Object> properties = new HashMap<>();
         properties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaBrokers);
-        properties.put(ConsumerConfig.CLIENT_ID_CONFIG, hostname);
-        properties.put(ConsumerConfig.GROUP_ID_CONFIG, hostname);
+        properties.put(ConsumerConfig.CLIENT_ID_CONFIG, kafkaConsumerGroupId);
+        properties.put(ConsumerConfig.GROUP_ID_CONFIG, kafkaConsumerGroupId);
         properties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         properties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
 
@@ -68,14 +69,4 @@ public class KafkaConfiguration {
 
         return properties;
     }
-
-    public static String buildKafkaClientId(Logger logger) {
-        try {
-            return InetAddress.getLocalHost().getHostName();
-        } catch (UnknownHostException e) {
-            logger.error("failed to resolve local hostname, picking random clientId");
-            return UUID.randomUUID().toString();
-        }
-    }
-
 }
