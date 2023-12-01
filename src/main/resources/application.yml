@@ -7,6 +7,8 @@ management:
   health:
     elasticsearch:
       enabled: false
+  endpoints:
+    web.exposure.include: health,info,metrics,prometheus
 
 kafka:
   brokers: "kafka:9092"
