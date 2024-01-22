@@ -1,6 +1,7 @@
 package org.mifos.phee.kafkastreamer.importer;
 
 import io.camunda.zeebe.protocol.record.ValueType;
+import io.camunda.zeebe.util.VersionUtil;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -178,8 +179,8 @@ public class ElasticsearchClient {
         }
     }
 
-    private static String getVersion() { // TODO get version from somewhere
-        return "8.1.8";
+    private static String getVersion() {
+        return VersionUtil.getVersion();
     }
 
 
