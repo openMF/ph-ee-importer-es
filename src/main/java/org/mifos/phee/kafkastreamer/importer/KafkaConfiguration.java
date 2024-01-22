@@ -33,7 +33,7 @@ public class KafkaConfiguration {
     @Value("${kafka.msk}")
     private boolean kafkaMsk;
 
-    @Value("kafka.consumer-group-id")
+    @Value("${kafka.consumer-group-id}")
     private String kafkaConsumerGroupId;
 
     @Bean
