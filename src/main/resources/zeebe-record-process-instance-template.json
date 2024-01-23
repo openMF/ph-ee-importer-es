@@ -1,32 +1,29 @@
 {
   "index_patterns": [
-    "zeebe-record_incident_*"
+    "zeebe-record_process-instance_*"
   ],
   "composed_of": ["zeebe-record"],
   "priority": 20,
   "version": 1,
   "template": {
     "settings": {
-      "number_of_shards": 1,
+      "number_of_shards": 3,
       "number_of_replicas": 0,
       "index.queries.cache.enabled": false
     },
     "aliases": {
-      "zeebe-record-incident": {}
+      "zeebe-record-process-instance": {}
     },
     "mappings": {
       "properties": {
         "value": {
           "dynamic": "strict",
           "properties": {
-            "errorType": {
-              "type": "keyword"
-            },
-            "errorMessage": {
-              "type": "text"
-            },
             "bpmnProcessId": {
               "type": "keyword"
+            },
+            "version": {
+              "type": "integer"
             },
             "processDefinitionKey": {
               "type": "long"
@@ -37,13 +34,19 @@
             "elementId": {
               "type": "keyword"
             },
-            "elementInstanceKey": {
+            "flowScopeKey": {
               "type": "long"
             },
-            "jobKey": {
+            "bpmnElementType": {
+              "type": "keyword"
+            },
+            "bpmnEventType": {
+              "type": "keyword"
+            },
+            "parentProcessInstanceKey": {
               "type": "long"
             },
-            "variableScopeKey": {
+            "parentElementInstanceKey": {
               "type": "long"
             },
             "tenantId": {

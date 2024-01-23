@@ -1,50 +1,65 @@
 {
   "index_patterns": [
-    "zeebe-record_incident_*"
+    "zeebe-record_user-task_*"
   ],
   "composed_of": ["zeebe-record"],
   "priority": 20,
   "version": 1,
   "template": {
     "settings": {
-      "number_of_shards": 1,
+      "number_of_shards": 3,
       "number_of_replicas": 0,
       "index.queries.cache.enabled": false
     },
     "aliases": {
-      "zeebe-record-incident": {}
+      "zeebe-record-user-task": {}
     },
     "mappings": {
       "properties": {
         "value": {
           "dynamic": "strict",
           "properties": {
-            "errorType": {
-              "type": "keyword"
-            },
-            "errorMessage": {
-              "type": "text"
-            },
-            "bpmnProcessId": {
-              "type": "keyword"
-            },
-            "processDefinitionKey": {
+            "userTaskKey": {
               "type": "long"
             },
-            "processInstanceKey": {
+            "assignee": {
+              "type": "keyword"
+            },
+            "candidateGroups": {
+              "type": "text"
+            },
+            "candidateUsers": {
+              "type": "text"
+            },
+            "dueDate": {
+              "type": "keyword"
+            },
+            "followUpDate": {
+              "type": "keyword"
+            },
+            "formKey": {
               "type": "long"
             },
             "elementId": {
-              "type": "keyword"
+              "type": "text"
             },
             "elementInstanceKey": {
               "type": "long"
             },
-            "jobKey": {
+            "bpmnProcessId": {
+              "type": "keyword"
+            },
+            "processDefinitionVersion": {
+              "type": "integer"
+            },
+            "processInstanceKey": {
               "type": "long"
             },
-            "variableScopeKey": {
+            "processDefinitionKey": {
               "type": "long"
+            },
+            "variables": {
+              "enabled": false
             },
             "tenantId": {
               "type": "keyword"

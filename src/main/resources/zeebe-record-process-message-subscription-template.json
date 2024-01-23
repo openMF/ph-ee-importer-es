@@ -1,6 +1,6 @@
 {
   "index_patterns": [
-    "zeebe-record_incident_*"
+    "zeebe-record_process-message-subscription_*"
   ],
   "composed_of": ["zeebe-record"],
   "priority": 20,
@@ -12,39 +12,39 @@
       "index.queries.cache.enabled": false
     },
     "aliases": {
-      "zeebe-record-incident": {}
+      "zeebe-record-process-message-subscription": {}
     },
     "mappings": {
       "properties": {
         "value": {
           "dynamic": "strict",
           "properties": {
-            "errorType": {
-              "type": "keyword"
-            },
-            "errorMessage": {
-              "type": "text"
-            },
-            "bpmnProcessId": {
-              "type": "keyword"
-            },
-            "processDefinitionKey": {
-              "type": "long"
-            },
             "processInstanceKey": {
               "type": "long"
-            },
-            "elementId": {
-              "type": "keyword"
             },
             "elementInstanceKey": {
               "type": "long"
             },
-            "jobKey": {
+            "messageName": {
+              "type": "keyword"
+            },
+            "variables": {
+              "enabled": false
+            },
+            "bpmnProcessId": {
+              "type": "keyword"
+            },
+            "messageKey": {
               "type": "long"
             },
-            "variableScopeKey": {
-              "type": "long"
+            "correlationKey": {
+              "type": "keyword"
+            },
+            "elementId": {
+              "type": "text"
+            },
+            "interrupting": {
+              "type": "boolean"
             },
             "tenantId": {
               "type": "keyword"
