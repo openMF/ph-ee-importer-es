@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Component;import java.text.SimpleDateFormat;import java.util.Date;
 
 @Component
 public class KafkaImporter {
@@ -32,6 +32,7 @@ public class KafkaImporter {
         }
 
         JSONObject data = new JSONObject(rawData);
+        data.put("importedTime", new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date()));
         logger.trace("from kafka: {}", data.toString(2));
 
         elasticsearchClient.index(data);
