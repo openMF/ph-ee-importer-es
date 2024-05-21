@@ -32,7 +32,6 @@ public class KafkaImporter {
             rawData = maskingService.mask(rawData);
             logger.debug("After: {}", rawData);
         }
-
         JSONObject data = new JSONObject(rawData);
         data.put("importedTime", new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZZ").format(new Date()));
         logger.trace("from kafka: {}", data.toString(2));
