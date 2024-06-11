@@ -33,11 +33,11 @@ jobs:
 
             # Build and tag the Docker image
             ./gradlew bootJar
-            docker build -t "/ph-ee-importer-es:$IMAGE_TAG" .
+            docker build -t "fynarfin/ph-ee-importer-es:$IMAGE_TAG" .
 
             # Push the Docker image to Docker Hub
             docker login -u "$DOCKERHUB_USERNAME" -p "$DOCKERHUB_PASSWORD"
-            docker push "/ph-ee-importer-es:$IMAGE_TAG"
+            docker push "fynarfin/ph-ee-importer-es:$IMAGE_TAG"
 
           # when: always  # The job will be executed even if there's no match for the tag filter
 
@@ -59,7 +59,7 @@ jobs:
           command: |
             IMAGE_TAG=$CIRCLE_TAG
             ./gradlew bootJar
-            docker build -t /ph-ee-importer-es:latest .
+            docker build -t fynarfin/ph-ee-importer-es:latest .
             if [ "$CIRCLE_BRANCH" != "develop" ]; then
               PR_NUMBER=$(basename $CIRCLE_PULL_REQUEST)
               PR_TITLE=$(curl -sSL "https://api.github.com/repos/fynarfin/$CIRCLE_PR_REPONAME/pulls/$PR_NUMBER" | jq -r '.title')
