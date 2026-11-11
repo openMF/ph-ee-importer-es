@@ -163,7 +163,7 @@ configure(this) {
 }
 
 group = 'org.mifos'
-version = '1.0.0-SNAPSHOT'
+version = '2.0.0.mifos-SNAPSHOT'
 sourceCompatibility = '17'
 
 publishing {
